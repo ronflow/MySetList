@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get "events/index"
   get "songs/index"
   get "welcome/index"
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -16,6 +17,8 @@ Rails.application.routes.draw do
   # root "posts#index"
   root "welcome#index"
 
+
+
   resources :events, only: [:show] do
     resources :event_song_queues, only: [:index, :create, :destroy] do
       collection do
@@ -24,7 +27,16 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :songs, only: [:index]
+  resources :songs, only: [:index] do 
+    member do
+      get :lyrics
+    end
+  end
+
+  namespace :admin do
+    root to: 'admin#index'
+    get 'events/:event_id/queue', to: 'admin#show_queue', as: 'event_queue'
+  end
 end
   
 

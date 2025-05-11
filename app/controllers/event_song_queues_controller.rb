@@ -17,10 +17,24 @@ class EventSongQueuesController < ApplicationController
       redirect_to event_path(@event), notice: "Song Added to Queue"
     end
   
+    # def destroy
+    #   queue = @event.event_song_queues.find(params[:id])
+    #   queue.destroy
+    #   redirect_to event_event_song_queues_path(@event)
+    # end
+
+    # def destroy
+    #   @queue = EventSongQueue.find(params[:id])
+    #   @queue.destroy
+    #   redirect_to event_event_song_queues_path(@queue.event), notice: "Song removed from the queue."
+    # end
+
     def destroy
-      queue = @event.event_song_queues.find(params[:id])
-      queue.destroy
-      redirect_to event_event_song_queues_path(@event)
+      @event = Event.find(params[:event_id])
+      @queue = @event.event_song_queues.find(params[:id])
+      @queue.destroy
+      
+      redirect_to event_event_song_queues_path(@event), notice: 'Song was successfully removed from the queue.'
     end
   
     def reorder
