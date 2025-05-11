@@ -1,0 +1,38 @@
+class EventSongQueuesController < ApplicationController
+    before_action :set_event
+
+    def index
+      @queues = @event.event_song_queues.includes(:song, :performer)
+    end
+  
+    def create
+      performer = Performer.find_or_create_by(name: params[:performer].strip)
+      position = @event.event_song_queues.maximum(:position).to_i + 1
+      EventSongQueue.create!(
+        event: @event,
+        song_id: params[:song_id],
+        performer: performer,
+        position: position
+      )
+      redirect_to event_path(@event), notice: "Song Added to Queue"
+    end
+  
+    def destroy
+      queue = @event.event_song_queues.find(params[:id])
+      queue.destroy
+      redirect_to event_event_song_queues_path(@event)
+    end
+  
+    def reorder
+      params[:order].each_with_index do |id, index|
+        EventSongQueue.where(id: id).update_all(position: index + 1)
+      end
+      head :ok
+    end
+  
+    private
+  
+    def set_event
+      @event = Event.find(params[:event_id])
+    end
+end

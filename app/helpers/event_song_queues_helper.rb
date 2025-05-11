@@ -1,0 +1,2 @@
+module EventSongQueuesHelper
+end

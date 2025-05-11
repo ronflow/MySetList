@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  event: one
+  song: one
+  performer: one
+  position: 1
+
+two:
+  event: two
+  song: two
+  performer: two
+  position: 1

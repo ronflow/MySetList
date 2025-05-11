@@ -1,0 +1,9 @@
+<!-- app/views/welcome/index.html.erb -->
+<h1>MySetList</h1>
+<ul>
+  <% @events.each do |event| %>
+    <li>
+      <%= link_to "#{event.event_date} - #{event.description}", event_path(event) %>
+    </li>
+  <% end %>
+</ul>

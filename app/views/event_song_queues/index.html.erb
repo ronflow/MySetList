@@ -1,0 +1,32 @@
+<!-- app/views/event_song_queues/index.html.erb -->
+<h2><%= @event.description %></h2>
+
+<ul id="sortable-queue">
+  <% @queues.each do |queue| %>
+    <li data-id="<%= queue.id %>">
+      <%= queue.song.name %> by <%= queue.performer.name %>
+      <%= link_to "Remove", event_event_song_queue_path(@event, queue), method: :delete, data: { confirm: "Sure?" } %>
+    </li>
+  <% end %>
+</ul>
+
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const el = document.getElementById("sortable-queue");
+    Sortable.create(el, {
+      onEnd: function () {
+        const ids = Array.from(el.children).map(li => li.dataset.id);
+        fetch("<%= reorder_event_event_song_queues_path(@event) %>", {
+          method: "POST",
+          headers: {
+            "X-CSRF-Token": "<%= form_authenticity_token %>",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ order: ids })
+        });
+      }
+    });
+  });
+</script>

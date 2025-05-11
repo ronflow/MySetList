@@ -1,0 +1,27 @@
+<!-- app/views/events/show.html.erb -->
+<h2><%= @event.description %></h2>
+
+<%= form_with url: event_path(@event), method: :get, local: true do %>
+  <%= label_tag :query, "Search Songs" %>
+  <%= text_field_tag :query, params[:query] %>
+  <%= submit_tag "Filter" %>
+<% end %>
+
+<ul>
+  <% Song.all.each do |song| %>
+    <li>
+      <%= song.name %> - <%= song.artist %>
+      <%= form_with url: event_event_song_queues_path(@event), method: :post, local: true do %>
+        <%= hidden_field_tag :song_id, song.id %>
+        <%= text_field_tag :performer, nil, placeholder: "Enter Performer", required: true %>
+        <%= submit_tag "Add Song to Queue" %>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to "View Song Queue", event_event_song_queues_path(@event) %>
+
+<% if notice %>
+  <p style="color: green;"><%= notice %></p>
+<% end %>
