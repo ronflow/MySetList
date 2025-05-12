@@ -8,20 +8,23 @@
 <% end %>
 
 <br>
-<%= link_to "Ver a Fila de Músicas", event_event_song_queues_path(@event) %>
+<%= link_to ">>> VER FILA <<<", event_event_song_queues_path(@event) %>
 <br>
-
+<% if notice %>
+  <p style="color: green;"><%= notice %></p>
+<% end %>
+<br>
 
 <table>
   <thead>
     <tr>
-      <th>Song Name</th>
-      <th>Artist</th>
-      <th>Actions</th>
+      <th>Música</th>
+      <th>Artista</th>
+      <th>Ações</th>
     </tr>
   </thead>
   <tbody>
-    <% Song.all.each do |song| %>
+    <% @songs.each do |song| %>
       <tr>
         <td><%= song.name %></td>
         <td><%= song.artist %></td>
@@ -29,14 +32,10 @@
           <%= form_with url: event_event_song_queues_path(@event), method: :post, local: true do %>
             <%= hidden_field_tag :song_id, song.id %>
             <%= text_field_tag :performer, nil, placeholder: "Nome do CANTOR", required: true %>
-            <%= submit_tag "Entre o Nome e adicione na fila" %>
+            <%= submit_tag "Entre o Nome e entre na Fila" %>
           <% end %>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
-
-<% if notice %>
-  <p style="color: green;"><%= notice %></p>
-<% end %>

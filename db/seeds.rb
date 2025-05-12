@@ -11,6 +11,6 @@
 # db/seeds.rb
 
   
-  Event.create!(event_date: "2025-01-01", locale: "Evento Bandaoke TESTE", description: "Evento TESTE Rock Flowerz - brinque aqui!")
+  # Event.create!(event_date: "2025-01-01", locale: "Evento Bandaoke TESTE", description: "Evento TESTE Rock Flowerz - brinque aqui!")
   # Event.create!(event_date: "2025-05-29", locale: "Gaz Burning", description: "Rock Flowerz no Gaz - Quinta dia 29/Mai")
   
