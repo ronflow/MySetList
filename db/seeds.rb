@@ -10,15 +10,7 @@
 
 # db/seeds.rb
 
-5.times do |i|
-    Song.create!(
-      name: "Song#{i + 1}",
-      artist: "Artist#{i + 1}",
-      tags: "tag#{i + 1}",
-      lyrics: "Lyrics for song #{i + 1}"
-    )
-  end
   
-  Event.create!(event_date: "2025-05-01", locale: "Venue A", description: "Rock Night")
-  Event.create!(event_date: "2025-05-02", locale: "Venue B", description: "Jazz Evening")
+  Event.create!(event_date: "2025-05-15", locale: "Gaz Burning", description: "Rock Flowerz no Gaz - Quinta dia 15/Mai")
+  Event.create!(event_date: "2025-05-29", locale: "Gaz Burning", description: "Rock Flowerz no Gaz - Quinta dia 29/Mai")
   
