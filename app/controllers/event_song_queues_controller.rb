@@ -14,7 +14,7 @@ class EventSongQueuesController < ApplicationController
         performer: performer,
         position: position
       )
-      redirect_to event_path(@event), notice: "Song Added to Queue"
+      redirect_to event_path(@event), notice: "Artista e Música Incluídos na FILA"
     end
   
     # def destroy
