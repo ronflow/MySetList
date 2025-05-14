@@ -31,7 +31,7 @@
         <td>
           <%= form_with url: event_event_song_queues_path(@event), method: :post, local: true do %>
             <%= hidden_field_tag :song_id, song.id %>
-            <%= text_field_tag :performer, nil, placeholder: "Digite seu nome de Artista", required: true %>
+            <%= text_field_tag :performer, nil, placeholder: "Digite seu nome Artístico", required: true %>
             <%= submit_tag "Clique aqui para entrar na FILA" %>
           <% end %>
         </td>
