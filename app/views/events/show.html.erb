@@ -19,7 +19,7 @@
   <thead>
     <tr>
       <th>Música</th>
-      <th>Banda</th>
+      <th>Letra</th>
       <th>Ações</th>
     </tr>
   </thead>
@@ -27,7 +27,9 @@
     <% @songs.each do |song| %>
       <tr>
         <td><%= song.name %></td>
-        <td><%= song.artist %></td>
+        <td>
+           <%= link_to "Ver Letra", lyrics_song_path(song), class: "button" %>
+        </td>
         <td>
           <%= form_with url: event_event_song_queues_path(@event), method: :post, local: true do %>
             <%= hidden_field_tag :song_id, song.id %>

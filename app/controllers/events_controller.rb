@@ -8,5 +8,6 @@ class EventsController < ApplicationController
     if params[:query].present?
       @songs = @songs.where("name ILIKE ? OR artist ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
     end
+    
   end
 end
