@@ -19,8 +19,8 @@ Rails.application.routes.draw do
 
 
 
-  resources :events, only: [:show] do
-    resources :event_song_queues, only: [:index, :create, :destroy] do
+  resources :events do #, only: [:show] do
+    resources :event_song_queues do #, only: [:index, :create, :destroy] do
       collection do
         post :reorder
       end
