@@ -34,7 +34,13 @@ class EventSongQueuesController < ApplicationController
       @queue = @event.event_song_queues.find(params[:id])
       @queue.destroy
       
-      redirect_to event_event_song_queues_path(@event), notice: 'Song was successfully removed from the queue.'
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to admin_event_queue_path(@event), notice: 'Song was successfully removed from the queue.' }
+
+        #format.html { redirect_to event_event_song_queues_path(@event), notice: 'Song was successfully removed from the queue.' }
+      end
+      #redirect_to event_event_song_queues_path(@event), notice: 'Song was successfully removed from the queue.'
     end
   
   def reorder
