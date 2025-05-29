@@ -14,7 +14,7 @@ class EventSongQueuesController < ApplicationController
         performer: performer,
         position: position
       )
-      redirect_to event_path(@event), notice: "Artista e Música Incluídos na FILA"
+      redirect_to showpublico_event_path(@event), notice: "Artista e Música Incluídos na FILA"
     end
   
     # def destroy
