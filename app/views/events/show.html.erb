@@ -1,43 +1,10 @@
-<!-- app/views/events/show.html.erb -->
-<h2><%= @event.description %></h2>
+<p style="color: green"><%= notice %></p>
 
-<%= form_with url: event_path(@event), method: :get, local: true do %>
-  <%= label_tag :query, "Busca Música" %>
-  <%= text_field_tag :query, params[:query] %>
-  <%= submit_tag "Filtrar Músicas" %>
-<% end %>
+<%= render @event %>
 
-<br>
-<%= link_to ">>> VER FILA <<<", event_event_song_queues_path(@event) %>
-<br>
-<% if notice %>
-  <p style="color: green;"><%= notice %></p>
-<% end %>
-<br>
+<div>
+  <%= link_to "Edit this event", edit_event_path(@event) %> |
+  <%= link_to "Back to events", events_path %>
 
-<table>
-  <thead>
-    <tr>
-      <th>Música</th>
-      <th>Letra</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @songs.each do |song| %>
-      <tr>
-        <td><%= song.name %></td>
-        <td>
-           <%= link_to "Ver Letra", lyrics_song_path(song), class: "button" %>
-        </td>
-        <td>
-          <%= form_with url: event_event_song_queues_path(@event), method: :post, local: true do %>
-            <%= hidden_field_tag :song_id, song.id %>
-            <%= text_field_tag :performer, nil, placeholder: "Digite seu nome Artístico", required: true %>
-            <%= submit_tag "Clique aqui para entrar na FILA" %>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+  <%= button_to "Destroy this event", @event, method: :delete %>
+</div>
