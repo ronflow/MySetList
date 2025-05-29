@@ -26,7 +26,7 @@
       
         <% @events.each do |event| %>
           <li>
-            <%= link_to "#{event.event_date} - #{event.description}", event_path(event) %>
+            <%= link_to "#{event.event_date} - #{event.description}", showpublico_event_path(event) %>
           </li>
         <% end %>
       </ul>

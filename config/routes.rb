@@ -21,6 +21,9 @@ Rails.application.routes.draw do
 
 
   resources :events do #, only: [:show] do
+    member do
+      get :showpublico
+    end
     resources :event_song_queues do #, only: [:index, :create, :destroy] do
       collection do
         post :reorder

@@ -6,9 +6,24 @@ class EventsController < ApplicationController
     @events = Event.all
   end
 
+  # novo show para o publico do evento
+  def showpublico
+    @event = Event.find(params[:id])
+    # Add any other variables you need for the view
+    @songs = Song.all
+
+    if params[:query].present?
+      @songs = @songs.where("name ILIKE ? OR artist ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
+    end
+  end
+
   # GET /events/1 or /events/1.json
   def show
+    @event = Event.find(params[:id])
+
   end
+
+
 
   # GET /events/new
   def new
