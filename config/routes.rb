@@ -38,6 +38,11 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    resources :events do
+      member do
+        post 'queue/reorder', to: 'admin#reorder' # Adjust controller name if needed
+      end
+    end
     root to: 'admin#index'
     get 'events/:event_id/queue', to: 'admin#show_queue', as: 'event_queue'
   end

@@ -43,13 +43,7 @@ class EventSongQueuesController < ApplicationController
       #redirect_to event_event_song_queues_path(@event), notice: 'Song was successfully removed from the queue.'
     end
   
-  def reorder
-    params[:order].each_with_index do |id, index|
-      queue = EventSongQueue.find(id)
-      queue.update(position: index + 1)
-    end
-    head :ok
-  end
+    
   
     private
   
