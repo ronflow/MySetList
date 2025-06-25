@@ -25,8 +25,8 @@ Rails.application.routes.draw do
       get :showpublico
     end
     resources :event_song_queues do #, only: [:index, :create, :destroy] do
-      collection do
-        post :reorder
+      member do
+        patch :hide
       end
     end
   end

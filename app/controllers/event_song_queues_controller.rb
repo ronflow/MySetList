@@ -3,7 +3,16 @@ class EventSongQueuesController < ApplicationController
 
     def index
       @queues = @event.event_song_queues.includes(:song, :performer)
+      @visible_queues = @queues.where(hidden: [false, nil]).order(:position)
+      @hidden_queues  = @queues.where(hidden: true).order(:position)
     end
+
+    #controller do comando HIDE
+    def hide
+      @queue = EventSongQueue.find(params[:id])
+      @queue.update(hidden: true)
+      redirect_back fallback_location: admin_root_path, notice: "Song hidden from queue."
+    end    
   
     def create
       performer = Performer.find_or_create_by(name: params[:performer].strip)

@@ -7,8 +7,10 @@ module Admin
     def show_queue
       @event = Event.find(params[:event_id])
       @queues = @event.event_song_queues.order(:position)
-      # @queues = @event.event_song_queues.includes(:song, :performer)
+      @visible_queues = @queues.where(hidden: [false, nil]).order(:position)
+      @hidden_queues = @queues.where(hidden: true).order(:position)
     end
+    
     def reorder
       Rails.logger.info "Reorder params: #{params[:order].inspect}"
 
