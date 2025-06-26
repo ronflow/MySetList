@@ -10,7 +10,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @queues.each do |queue| %>
+    <% @queues.where(hidden: [false, nil]).order(:position).each do |queue| %>
       <tr>
         <td><%= queue.song.name %></td>
         <td><%= queue.performer.name %></td>
