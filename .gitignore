@@ -38,7 +38,7 @@
 !/app/assets/builds/.keep
 
 # ajustes branch vitormysetlist
-*.lock
-/config/database.yml
+# *.lock
+# /config/database.yml
 
 
