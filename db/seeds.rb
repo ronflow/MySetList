@@ -17,7 +17,7 @@
 
 # EventSongQueue.destroy_all
 # Song.destroy_all
-Song.create!( name: "0utra Musica (nao achei na lista)", artist: "Outra Qualquer", tags: "rock; internacional", lyrics: " Nao Achei a Musica na Lista mas quero entrar na Fila para Cantar! :)  ")
+# Song.create!( name: "0utra Musica (nao achei na lista)", artist: "Outra Qualquer", tags: "rock; internacional", lyrics: " Nao Achei a Musica na Lista mas quero entrar na Fila para Cantar! :)  ")
 
 # Event.create!(event_date: "2025-06-12", locale: "Gaz Burning", description: "Rock Flowerz - Namorados - Quinta - 12/jun")
 # Event.create!(event_date: "2025-06-22", locale: "Gaz Burning", description: "Burning House Flowerz - Domingo - 22/jun")
