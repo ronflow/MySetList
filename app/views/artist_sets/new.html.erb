@@ -1,0 +1,11 @@
+<% content_for :title, "New artist set" %>
+
+<h1>New artist set</h1>
+
+<%= render "form", artist_set: @artist_set %>
+
+<br>
+
+<div>
+  <%= link_to "Back to artist sets", artist_sets_path %>
+</div>

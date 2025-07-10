@@ -1,5 +1,8 @@
 module Admin
   class AdminController < ApplicationController
+
+    before_action :authenticate_user!
+
     def index
       @events = Event.all
     end
@@ -19,6 +22,12 @@ module Admin
         queue.update(position: index + 1)
       end
       head :ok
+    end
+    
+    def authenticate_user!
+      unless session[:user_id]
+        redirect_to new_sessions_path, alert: "Faça login para continuar."
+      end
     end
   end
 end

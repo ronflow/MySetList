@@ -1,0 +1,24 @@
+<h1>Sets de <%= @artist.name %></h1>
+
+<%= form_with url: artist_set_path(@artist_sets), method: :get, local: true do %>
+    <%= label_tag :query, "Buscar Set" %>
+    <%= text_field_tag :query, params[:query] %>
+    <%= submit_tag "Filtrar Sets" %>
+<% end %>
+
+<ul>
+  <% @artist_sets.each do |set| %>
+    <li>
+      <%= link_to set.set_list_name, public_songs_artist_set_path(set) %>
+      <!-- Ou, se quiser uma action específica, troque para: artist_set_songs_path(set) -->
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to "New set", new_artist_set_path %>
+
+<br>
+
+<%= link_to "Voltar para o artista", artist_path(@artist) %> 
+
+

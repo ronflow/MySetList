@@ -1,4 +1,6 @@
 class EventSongQueuesController < ApplicationController
+    
+    skip_before_action :authenticate_user!, only: [:index, :create]
     before_action :set_event
 
     def index
@@ -25,19 +27,7 @@ class EventSongQueuesController < ApplicationController
       )
       redirect_to showpublico_event_path(@event), notice: "Artista e Música Incluídos na FILA"
     end
-  
-    # def destroy
-    #   queue = @event.event_song_queues.find(params[:id])
-    #   queue.destroy
-    #   redirect_to event_event_song_queues_path(@event)
-    # end
-
-    # def destroy
-    #   @queue = EventSongQueue.find(params[:id])
-    #   @queue.destroy
-    #   redirect_to event_event_song_queues_path(@queue.event), notice: "Song removed from the queue."
-    # end
-
+    
     def destroy
       @event = Event.find(params[:event_id])
       @queue = @event.event_song_queues.find(params[:id])
@@ -47,9 +37,9 @@ class EventSongQueuesController < ApplicationController
         format.turbo_stream
         format.html { redirect_to admin_event_queue_path(@event), notice: 'Song was successfully removed from the queue.' }
 
-        #format.html { redirect_to event_event_song_queues_path(@event), notice: 'Song was successfully removed from the queue.' }
+
       end
-      #redirect_to event_event_song_queues_path(@event), notice: 'Song was successfully removed from the queue.'
+      
     end
   
     

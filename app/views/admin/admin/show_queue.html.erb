@@ -27,7 +27,7 @@
                   <tr data-id="<%= queue.id %>">
                     <td><%= queue.position %></td>
                     <td><%= queue.song.name %></td>
-                    <td><%= queue.song.artist %></td>
+                    <td><%= queue.song.artist_sets.first.artist.name if queue.song.artist_sets.first %></td>
                     <td><%= queue.performer.name %></td>
                     <td>
                       <%= button_to "HIDE",
