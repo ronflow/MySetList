@@ -1,0 +1,18 @@
+<!-- filepath: c:\DEV\MySetList\app\views\sessions\new.html.erb -->
+<% content_for :title, "Login" %>
+
+<h1>Login</h1>
+
+<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+
+<%= form_with url: sessions_path, local: true do |form| %>
+  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Digite seu endereço de e-mail" %><br>
+  <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Digite sua senha", maxlength: 72 %><br>
+  <%= form.submit "Entrar" %>
+<% end %>
+<br>
+
+<%= link_to "Esqueceu a sua senha?", new_password_path %>
+<br>
+<%= link_to "Criar nova conta", new_user_path %>

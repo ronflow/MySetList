@@ -1,0 +1,42 @@
+<!-- filepath: app/views/users/new.html.erb -->
+<div class="container">
+  <h2>Criar Nova Conta</h2>
+  
+  <%= form_with model: @user, local: true do |form| %>
+    <% if @user.errors.any? %>
+      <div class="alert alert-danger">
+        <ul>
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= form.label :name, "Nome" %>
+      <%= form.text_field :name %>
+    </div>
+
+    <div class="field">
+      <%= form.label :email_address, "E-mail" %>
+      <%= form.email_field :email_address %>
+    </div>
+
+    <div class="field">
+      <%= form.label :password, "Senha" %>
+      <%= form.password_field :password %>
+    </div>
+
+    <div class="field">
+      <%= form.label :password_confirmation, "Confirme a Senha" %>
+      <%= form.password_field :password_confirmation %>
+    </div>
+
+    <div class="actions">
+      <%= form.submit "Criar Conta" %>
+    </div>
+  <% end %>
+
+  <%= link_to "Voltar para Login", new_sessions_path %>
+</div>

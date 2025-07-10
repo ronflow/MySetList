@@ -1,4 +1,7 @@
 class SongsController < ApplicationController
+
+  skip_before_action :authenticate_user!, only: [:lyrics]
+  
   def index
     @event = Event.find(params[:event_id])
     @query = params[:query]

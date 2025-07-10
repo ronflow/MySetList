@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @artist_set_song %>
+
+<div>
+  <%= link_to "Edit this artist set song", edit_artist_set_song_path(@artist_set_song) %> |
+  <%= link_to "Back to artist set songs", artist_set_songs_path %>
+
+  <%= button_to "Destroy this artist set song", @artist_set_song, method: :delete %>
+</div>

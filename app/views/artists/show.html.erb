@@ -1,0 +1,26 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @artist %>
+
+<% if @artist.logo.attached? %>
+  <%= image_tag @artist.logo, width: 100 %>
+<% end %>
+
+<div>
+  <strong>User ID:</strong> <%= @artist.user_id %>
+  <br>
+  <strong>Usuário:</strong> <%= @artist.user.email_address %>
+</div>
+
+<br>
+
+<div>
+  <%= link_to "Edit this artist", edit_artist_path(@artist) %> |
+  <%= link_to "Back to artists", artists_path %> |
+  <%= link_to "Ver sets deste artista", artist_artist_sets_path(@artist) %>
+
+  <%= button_to "Destroy this artist", @artist, method: :delete %>
+
+  <%= link_to "Ver sets públicos deste artista", public_sets_artist_path(@artist) %>
+</div>
+

@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Artist sets" %>
+
+<h1>Artist sets</h1>
+
+<div id="artist_sets">
+  <% @artist_sets.each do |artist_set| %>
+    <%= render artist_set %>
+    <p>
+      <%= link_to "Show this artist set", artist_set %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New artist set", new_artist_set_path %>

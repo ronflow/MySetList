@@ -1,0 +1,43 @@
+<h1>Músicas do Set: <%= @artist_set.set_list_name %></h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <!-- Adicione outros campos se quiser -->
+    </tr>
+  </thead>
+  <tbody>
+    <% @songs.each do |song| %>
+      <tr>
+        <td><%= song.name %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= form_with url: public_songs_artist_set_path(@artist_set), method: :get, local: true do %>
+  <%= label_tag :query, "Buscar música" %>
+  <%= text_field_tag :query, params[:query] %>
+  <%= submit_tag "Buscar" %>
+  <%= link_to "Ordenar por nome", public_songs_artist_set_path(@artist_set, order: "name") %>
+<% end %>
+
+<% if @all_songs.present? %>
+  <h2>Todas as músicas encontradas</h2>
+  <%= form_with url: adicionar_musicas_artist_set_path(@artist_set), method: :post, local: true do %>
+    <ul>
+      <% @all_songs.each do |song| %>
+        <li>
+          <%= check_box_tag "song_ids[]", song.id %>
+          <%= song.name %>
+        </li>
+      <% end %>
+    </ul>
+    <%= submit_tag "Adicionar selecionadas ao set" %>
+  <% end %>
+<% end %>
+
+
+
+<%= link_to "Voltar para os sets", public_sets_artist_path(@artist_set) %>

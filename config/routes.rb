@@ -1,8 +1,19 @@
 Rails.application.routes.draw do
+  resources :artist_set_songs
+  resources :artist_sets
+  resources :artists
   resources :events
   get "events/index"
   get "songs/index"
   get "welcome/index"
+
+  resources :users, only: [:new, :create, :show]
+  resources :passwords, param: :token
+  resource :sessions, only: [:new, :create, :destroy]
+  # config/routes.rb
+  get    'login',  to: 'sessions#new'
+  post   'login',  to: 'sessions#create'
+  delete 'logout', to: 'sessions#destroy'
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -46,6 +57,31 @@ Rails.application.routes.draw do
     root to: 'admin#index'
     get 'events/:event_id/queue', to: 'admin#show_queue', as: 'event_queue'
   end
+
+  resources :artists do
+    resources :artist_sets
+  end
+
+  resources :artist_sets do
+    resources :artist_set_songs
+  end
+
+  resources :artists do
+    member do
+      get :public_sets
+    end
+  end
+
+  resources :artist_set_path
+
+  resources :artist_sets do
+    post :adicionar_musicas, on: :member
+    member do
+      get :public_songs
+    end
+  end
+
+  
 end
   
 

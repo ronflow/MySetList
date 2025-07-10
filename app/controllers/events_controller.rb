@@ -1,6 +1,8 @@
 class EventsController < ApplicationController
   before_action :set_event, only: %i[ show edit update destroy ]
 
+  skip_before_action :authenticate_user!, only: [:showpublico]
+
   # GET /events or /events.json
   def index
     @events = Event.all
@@ -9,11 +11,12 @@ class EventsController < ApplicationController
   # novo show para o publico do evento
   def showpublico
     @event = Event.find(params[:id])
-    # Add any other variables you need for the view
-    @songs = Song.all
-
+  
     if params[:query].present?
-      @songs = @songs.where("name ILIKE ? OR artist ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
+      # Busca por músicas associadas ao evento
+      @songs = Song.where("name ILIKE ?", "%#{params[:query]}%")
+    else
+      @songs = Song.all
     end
   end
 
