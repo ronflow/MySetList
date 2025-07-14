@@ -39,6 +39,6 @@
 
 # ajustes branch vitormysetlist
 # *.lock
-# /config/database.yml
+/config/database.yml
 
 

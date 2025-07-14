@@ -5,20 +5,35 @@ class ArtistsController < ApplicationController
   def index
     if current_user
       @artists = current_user.artists
+      
+      # Adicionar funcionalidade de busca igual ao public_sets
+      if params[:query].present?
+        @artists = @artists.where("name ILIKE ?", "%#{params[:query]}%")
+      end
     else
-      @artists = Artist.all
+      redirect_to new_sessions_path, alert: "Você precisa estar logado para ver os artistas."
+      return
     end
   end
 
   #Nova view de exibicao dos sets do artista
   def public_sets
-    @artist = Artist.find(params[:id])
     @artist_sets = @artist.artist_sets
-    # Add any other variables you need for the view
+    
+    # Busca por sets
+    if params[:query].present?
+      @artist_sets = @artist_sets.where("set_list_name ILIKE ?", "%#{params[:query]}%")
+    end
   end
 
   # GET /artists/1 or /artists/1.json
   def show
+    @artist_sets = @artist.artist_sets
+    
+    # Busca por sets se houver query
+    if params[:query].present?
+      @artist_sets = @artist_sets.where("set_list_name ILIKE ?", "%#{params[:query]}%")
+    end
   end
 
   # GET /artists/new
@@ -75,7 +90,11 @@ class ArtistsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_artist
-      @artist = Artist.find(params[:id])
+      if current_user
+        @artist = current_user.artists.find(params[:id])
+      else
+        @artist = Artist.find(params[:id])
+      end
     end
 
     # Only allow a list of trusted parameters through.

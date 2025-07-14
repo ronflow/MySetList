@@ -1,11 +1,92 @@
+<!-- filepath: app/views/artist_sets/show.html.erb -->
 <p style="color: green"><%= notice %></p>
 
-<%= render @artist_set %>
+<div>
+  <%= render @artist_set %>
+  <strong>Artist:</strong> <%= @artist_set.artist.name %> 
+</div>
 
 <div>
-  <%= link_to "Edit this artist set", edit_artist_set_path(@artist_set) %> |
-  <%= link_to "Back to artist sets", artist_sets_path %> |
-  <%= link_to "Ver músicas deste set", artist_set_artist_set_songs_path(@artist_set) %> |
-
+  <%= link_to "Edit this set", edit_artist_set_path(@artist_set) %> |
+  <%= link_to "Back to sets", artist_path(@artist_set.artist) %> 
   <%= button_to "Destroy this artist set", @artist_set, method: :delete %>
 </div>
+
+<h2>Músicas no Set</h2>
+<% if @songs.present? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @songs.each do |song| %>
+        <tr>
+          <td><%= song.name %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nenhuma música no set.</p>
+<% end %>
+
+<hr>
+
+<h2>Adicionar Músicas ao Set</h2>
+<%= form_with url: artist_set_path(@artist_set), method: :get, local: true do %>
+  <%= label_tag :query, "Buscar música" %>
+  <%= text_field_tag :query, params[:query] %>
+  <%= submit_tag "Buscar" %>
+  <%= link_to "Mostrar todas", artist_set_path(@artist_set) %>
+  <%= link_to "Ordenar por nome", artist_set_path(@artist_set, order: "name") %>
+<% end %>
+
+<% if @all_songs.present? %>
+  <h3>
+    <%= if params[:query].present?
+          "Músicas encontradas (#{@all_songs.count})"
+        else
+          "Todas as músicas disponíveis (#{@all_songs.count})"
+        end %>
+  </h3>
+  
+  <%= form_with url: adicionar_musicas_artist_set_path(@artist_set), method: :post, local: true do %>
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+      <ul style="list-style: none; padding: 0;">
+        <% @all_songs.each do |song| %>
+          <li style="margin: 5px 0;">
+            <%= check_box_tag "song_ids[]", song.id %>
+            <%= song.name %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    <br>
+    <%= submit_tag "Adicionar selecionadas ao set" %>
+  <% end %>
+<% end %>
+
+<hr>
+
+<h2>Remover Músicas do Set</h2>
+<% if @songs.present? %>
+  <%= form_with url: remover_musicas_artist_set_path(@artist_set), method: :delete, local: true do %>
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+      <ul style="list-style: none; padding: 0;">
+        <% @songs.each do |song| %>
+          <li style="margin: 5px 0;">
+            <%= check_box_tag "song_ids[]", song.id %>
+            <%= song.name %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    <br>
+    <%= submit_tag "Remover selecionadas", class: "btn btn-danger", 
+        confirm: "Tem certeza que deseja remover as músicas selecionadas?" %>
+  <% end %>
+<% else %>
+  <p>Nenhuma música no set para remover.</p>
+<% end %>
