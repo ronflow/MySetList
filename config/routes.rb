@@ -81,6 +81,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :artist_sets do
+    member do
+      post :adicionar_musicas
+      delete :remover_musicas
+    end
+  end
+
   
 end
   

@@ -1,31 +1,16 @@
 class ArtistSetsController < ApplicationController
-  before_action :set_artist_set, only: %i[ show edit update destroy ]
+  before_action :set_artist_set, only: [:show, :edit, :update, :destroy, :adicionar_musicas, :index]
 
   # GET /artist_sets or /artist_sets.json
   def index
-    if params[:artist_id].present?
-      @artist = Artist.find(params[:artist_id])
-      @artist_sets = @artist.artist_sets
-    else
-      @artist_sets = ArtistSet.all
-    end
-  end
-
-  def public_songs
-    @artist_set = ArtistSet.find(params[:id])
     @songs = @artist_set.songs
 
-  # Busca
-    # if params[:query].present?
-    #   @songs = @songs.where("name ILIKE ?", "%#{params[:query]}%")
-    # end
-
-  # Ordenação (exemplo por nome)
+    # Ordenação (exemplo por nome)
     if params[:order] == "name"
       @songs = @songs.order(:name)
     end
 
-    #Ordenação da busca de musica para inclusao no set
+    # Ordenação da busca de música para inclusão no set
     if params[:query].present?
       @all_songs = Song.where("name ILIKE ?", "%#{params[:query]}%")
     else
@@ -35,6 +20,21 @@ class ArtistSetsController < ApplicationController
 
   # GET /artist_sets/1 or /artist_sets/1.json
   def show
+    # Funcionar exatamente como a antiga public_songs
+    @songs = @artist_set.songs
+
+    # Ordenação (exemplo por nome)
+    if params[:order] == "name"
+      @songs = @songs.order(:name)
+    end
+
+    # Busca de música para inclusão no set
+    if params[:query].present?
+      @all_songs = Song.where("name ILIKE ?", "%#{params[:query]}%")
+    else
+      # Mostrar todas as músicas quando não há busca
+      @all_songs = Song.all
+    end
   end
 
   # GET /artist_sets/new
@@ -80,20 +80,42 @@ class ArtistSetsController < ApplicationController
   end
 
   def adicionar_musicas
-    @artist_set = ArtistSet.find(params[:id])
+    Rails.logger.debug "=== ADICIONAR MUSICAS DEBUG ==="
+    Rails.logger.debug "Params: #{params.inspect}"
+    Rails.logger.debug "Song IDs: #{params[:song_ids]}"
+    Rails.logger.debug "Artist Set: #{@artist_set.inspect}"
+
     if params[:song_ids].present?
+      success_count = 0
       params[:song_ids].each do |song_id|
-        ArtistSetSong.find_or_create_by(artist_set: @artist_set, song_id: song_id)
+        song = Song.find(song_id)
+        unless @artist_set.songs.include?(song)
+          @artist_set.songs << song
+          success_count += 1
+        end
       end
-      flash[:notice] = "Músicas adicionadas ao set!"
+      redirect_to @artist_set, notice: "#{success_count} música(s) adicionada(s) com sucesso!"
     else
-      flash[:alert] = "Selecione pelo menos uma música."
+      redirect_to @artist_set, alert: "Nenhuma música selecionada."
     end
-    redirect_to public_songs_artist_set_path(@artist_set)
+
+    def remover_musicas
+      if params[:song_ids].present?
+        params[:song_ids].each do |song_id|
+          song = Song.find(song_id)
+          @artist_set.songs.delete(song)
+        end
+        redirect_to @artist_set, notice: "Músicas removidas com sucesso!"
+      else
+        redirect_to @artist_set, alert: "Nenhuma música selecionada para remoção."
+      end
+    end
   end
+
 
   # DELETE /artist_sets/1 or /artist_sets/1.json
   def destroy
+    artist = @artist_set.artist
     @artist_set.destroy!
 
     respond_to do |format|
@@ -104,12 +126,19 @@ class ArtistSetsController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_artist_set
+  def set_artist_set
+    begin
       @artist_set = ArtistSet.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      redirect_to artists_path, alert: "Set não encontrado."
     end
+  end
 
-    # Only allow a list of trusted parameters through.
-    def artist_set_params
-      params.require(:artist_set).permit(:artist_id, :set_list_name)
-    end
+  def set_artist
+    @artist = Artist.find(params[:artist_id]) if params[:artist_id]
+  end
+
+  def artist_set_params
+    params.require(:artist_set).permit(:set_list_name, :description, :artist_id)
+  end
 end

@@ -1,16 +1,24 @@
-<p style="color: green"><%= notice %></p>
+<h1>Meus Artistas</h1>
 
-<% content_for :title, "Artists" %>
+<br>
 
-<h1>Artists</h1>
+<% if current_user %>
+    <strong>User name:</strong> <%= current_user.name %>
+    <strong>User ID:</strong> <%= current_user.id %>  
+<% end %>
 
-<div id="artists">
-  <% @artists.each do |artist| %>
-    <%= render artist %>
-    <p>
-      <%= link_to "Show this artist", artist %>
-    </p>
-  <% end %>
-</div>
+<br>
 
-<%= link_to "New artist", new_artist_path %>
+<% @artists.each do |artist| %>
+  <div>
+    <h2><%= artist.name %></h2>
+    <%= link_to "Ver artista", artist_path(artist) %>
+  </div>
+  <hr>
+<% end %>
+
+<!-- %= link_to "New artist", new_artist_path % -->
+
+<br>
+
+<%= link_to "Voltar para o Admin", admin_root_path %>

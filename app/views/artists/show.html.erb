@@ -1,26 +1,39 @@
-<p style="color: green"><%= notice %></p>
 
-<%= render @artist %>
+<p style="color: green"><%= notice %></p>
 
 <% if @artist.logo.attached? %>
   <%= image_tag @artist.logo, width: 100 %>
 <% end %>
 
+<%= render @artist %>
+
 <div>
   <strong>User ID:</strong> <%= @artist.user_id %>
   <br>
-  <strong>Usuário:</strong> <%= @artist.user.email_address %>
+  <strong>Artist:</strong> <%= @artist.id %>
 </div>
 
 <br>
 
 <div>
-  <%= link_to "Edit this artist", edit_artist_path(@artist) %> |
   <%= link_to "Back to artists", artists_path %> |
-  <%= link_to "Ver sets deste artista", artist_artist_sets_path(@artist) %>
-
+  <%= link_to "Edit this artist", edit_artist_path(@artist) %> 
   <%= button_to "Destroy this artist", @artist, method: :delete %>
-
-  <%= link_to "Ver sets públicos deste artista", public_sets_artist_path(@artist) %>
+  <br>
 </div>
 
+<%= form_with url: artist_path(@artist), method: :get, local: true do %>
+    <%= label_tag :query, "Buscar Sets" %>
+    <%= text_field_tag :query, params[:query] %>
+    <%= submit_tag "Filtrar Sets" %>
+<% end %>
+
+<% @artist_sets.each do |artist_set| %>
+  <div>
+    <h2><%= artist_set.set_list_name %></h2>
+    <%= link_to "Ver Sets", artist_set_path(artist_set) %>
+  </div>
+  <hr>
+<% end %>
+
+<%= link_to "New Sets", new_artist_artist_set_path(@artist) %>

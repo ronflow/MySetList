@@ -6,11 +6,16 @@
       <h1>MySetList</h1>
       <h3>Gerenciador de músicas e Fila de Artistas</h3>
       <h9>by: Stage Invaders</h9>
+      <% if @artist %>
+          <strong>Artista:</strong> <%= @artist.name %> |        
+          <strong>Artist ID:</strong> <%= @artist.id %> 
+      <% end %>
     </td>
     <td>
-      <%= image_tag 'RFguitNoBG.png', alt: 'Logo', class: 'logo' %>
+      <% if @artist.logo.attached? %>
+        <%= image_tag @artist.logo, width: 100 %>
+      <% end %>
     </td>
-   
   </tr>
 </table>
 
