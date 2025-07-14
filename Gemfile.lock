@@ -190,7 +190,19 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.8-arm64-darwin)
       racc (~> 1.4)
+<<<<<<< HEAD
     nokogiri (1.18.8-x64-mingw-ucrt)
+=======
+
+    nokogiri (1.18.8-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.18.8-x86_64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.8-x86_64-linux-musl)
+
+    nokogiri (1.18.8-x64-mingw-ucrt)
+
+>>>>>>> d42770d72230f323daa582c98d559f41551db960
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-darwin)
       racc (~> 1.4)
@@ -359,6 +371,10 @@ PLATFORMS
   arm-linux-gnu
   arm-linux-musl
   arm64-darwin
+<<<<<<< HEAD
+=======
+  arm64-darwin-24
+>>>>>>> d42770d72230f323daa582c98d559f41551db960
   x64-mingw-ucrt
   x86_64-darwin
   x86_64-linux
