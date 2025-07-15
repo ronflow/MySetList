@@ -2,8 +2,11 @@
   <h1 class="text-2xl font-bold mb-6">Admin Dashboard</h1>
 
   <% if current_user %>
-      <strong>User name:</strong> <%= current_user.name %>
-      <strong>User ID:</strong> <%= current_user.id %>  
+      <strong>User ID:</strong> <%= current_user.id %>
+  <% end %>
+  
+  <% if @artist %>
+      <strong>artist:</strong> <%= @artist.name %>
   <% end %>
   
   <table class="min-w-full divide-y divide-gray-200">

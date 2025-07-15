@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_09_220249) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_15_164302) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,6 +86,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_220249) do
     t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "artist_id"
+    t.index ["artist_id"], name: "index_events_on_artist_id"
   end
 
   create_table "performers", force: :cascade do |t|
@@ -122,4 +124,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_220249) do
   add_foreign_key "event_song_queues", "events"
   add_foreign_key "event_song_queues", "performers"
   add_foreign_key "event_song_queues", "songs"
+  add_foreign_key "events", "artists"
 end

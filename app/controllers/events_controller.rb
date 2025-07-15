@@ -26,8 +26,6 @@ class EventsController < ApplicationController
 
   end
 
-
-
   # GET /events/new
   def new
     @event = Event.new
@@ -83,6 +81,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.expect(event: [ :event_date, :description ])
+      params.require(:event).permit(:event_date, :description, :artist_id)
     end
 end
