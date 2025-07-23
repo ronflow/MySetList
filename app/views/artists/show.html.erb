@@ -1,37 +1,53 @@
+<!-- app/views/artists/show.html.erb -->
+<div style="zoom: 75%;">
+  <p style="color: green"><%= notice %></p>
 
-<p style="color: green"><%= notice %></p>
+  <% if @artist.logo.attached? %>
+    <%= image_tag @artist.logo, width: 150 %>
+  <% end %>
 
-<% if @artist.logo.attached? %>
-  <%= image_tag @artist.logo, width: 100 %>
-<% end %>
-
-<%= render @artist %>
-
-<div>
-  <strong>Artist:</strong> <%= @artist.id %>
-</div>
-
-<br>
-
-<div>
-  <%= link_to "Back to artists", artists_path %> |
-  <%= link_to "Edit this artist", edit_artist_path(@artist) %> 
-  <%= button_to "Destroy this artist", @artist, method: :delete %>
-  <br>
-</div>
-
-<%= form_with url: artist_path(@artist), method: :get, local: true do %>
-    <%= label_tag :query, "Buscar Sets" %>
-    <%= text_field_tag :query, params[:query] %>
-    <%= submit_tag "Filtrar Sets" %>
-<% end %>
-
-<% @artist_sets.each do |artist_set| %>
   <div>
-    <h2><%= artist_set.set_list_name %></h2>
-    <%= link_to "Ver Sets", artist_set_path(artist_set) %>
+    <strong>Artist:</strong> <%= @artist.name %> <strong>ID:</strong> <%= @artist.id %>
   </div>
-  <hr>
-<% end %>
 
-<%= link_to "New Sets", new_artist_artist_set_path(@artist) %>
+  <br>
+
+  <div>
+    <%= link_to "Back to artists", artists_path, 
+        role: "button" %>
+    <%= link_to "Edit this artist", edit_artist_path(@artist), 
+        role: "button" %>
+  </div>
+
+  <hr>
+
+  <%= form_with url: artist_path(@artist), method: :get, local: true do %>
+      <%= label_tag :query, "Buscar Sets" %>
+      <%= text_field_tag :query, params[:query] %>
+      <%= submit_tag "Filtrar Sets", 
+          role: "button" %>
+  <% end %>
+
+  <% @artist_sets.each do |artist_set| %>
+    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+      <h2><%= artist_set.set_list_name %></h2>
+      <%= link_to "Ver Sets", show_sets_pub_artist_artist_set_path(artist_id: @artist.id, id: artist_set.id), 
+          role: "button" %>
+    </div>
+  <% end %>
+
+  <hr>
+
+  <div style="margin: 20px 0;">
+    <%= link_to "New Sets", new_artist_artist_set_path(@artist), 
+        role: "button" %>
+  </div>
+
+  <hr>
+
+  <div>
+    <%= button_to "Destroy this artist", @artist, method: :delete, 
+        style: "background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
+        confirm: "Tem certeza que deseja deletar este artist?" %>
+  </div>
+</div>

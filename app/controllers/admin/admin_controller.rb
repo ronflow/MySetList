@@ -4,7 +4,21 @@ module Admin
     before_action :authenticate_user!
 
     def index
-      @events = Event.all
+      @events = Event.all.order(:event_date)
+    
+      # Definir o artist (escolha uma das opções abaixo)
+      if current_user
+        @artist = current_user.artists.first
+      else
+        @artist = Artist.find_by(id: 11) # ou Artist.find_by(name: 'Rock Flowerz')
+      end
+
+      # Filtrar eventos apenas do artist
+      if @artist
+        @events = @artist.events.order(:event_date)
+      else
+        @events = Event.none # ou Event.all se quiser mostrar todos quando não há artist
+      end
     end
 
     def show_queue

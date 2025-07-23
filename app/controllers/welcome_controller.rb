@@ -1,10 +1,9 @@
+# app/controllers/welcome_controller.rb
 class WelcomeController < ApplicationController
-
   skip_before_action :authenticate_user!
 
   def index
-    @events = Event.where("event_date >= ?", Date.yesterday).order(:event_date)
-    
+    # Definir o artist
     if params[:artist_name].present?
       @artist = Artist.find_by(name: params[:artist_name])
       # Se o parâmetro existe mas o artist não foi encontrado, usar 'Rock Flowerz'
@@ -12,8 +11,15 @@ class WelcomeController < ApplicationController
     elsif current_user
       @artist = current_user.artists.first
     else
-      # Se não há usuário logado, usar artist ID 11
-      @artist = Artist.find_by(name: 'Rock Flowerz')
+      # Se não há usuário logado, usar artist padrão
+      @artist = Artist.find_by(name: 'Rock Flowerz') || Artist.find_by(id: 11)
+    end
+
+    # Filtrar eventos apenas do artist selecionado
+    if @artist
+      @events = @artist.events.where("event_date >= ?", Date.yesterday).order(:event_date)
+    else
+      @events = Event.where("event_date >= ?", Date.yesterday).order(:event_date)
     end
   end
 end
