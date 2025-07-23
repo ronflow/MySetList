@@ -14,7 +14,7 @@ class EventsController < ApplicationController
       @artist = current_user.artists.first
       @events = @artist ? @artist.events : Event.all
     else
-      @artist = Artist.find_by(name: 'Rock Flowerz') || Artist.first
+      @artist = Artist.where("name ILIKE ?", "%Flowerz%").first
       @events = @artist ? @artist.events : Event.all
     end
     

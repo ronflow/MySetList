@@ -19,7 +19,7 @@
   <% 
     # Definir artists do usuário logado
     user_artists = current_user&.artists || Artist.none
-    default_artist = user_artists.first || Artist.find_by(name: 'Rock Flowerz') || Artist.first
+    default_artist = user_artists.first || @artist = Artist.where("name ILIKE ?", "%Flowerz%").first
     selected_artist_id = event.artist_id || default_artist&.id
   %>
 

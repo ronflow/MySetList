@@ -7,12 +7,12 @@ class WelcomeController < ApplicationController
     if params[:artist_name].present?
       @artist = Artist.find_by(name: params[:artist_name])
       # Se o parâmetro existe mas o artist não foi encontrado, usar 'Rock Flowerz'
-      @artist = Artist.find_by(name: 'Rock Flowerz') if @artist.nil?
+      @artist = Artist.where("name ILIKE ?", "%Flowerz%").first if @artist.nil?
     elsif current_user
       @artist = current_user.artists.first
     else
       # Se não há usuário logado, usar artist padrão
-      @artist = Artist.find_by(name: 'Rock Flowerz') || Artist.find_by(id: 11)
+      @artist = Artist.where("name ILIKE ?", "%Flowerz%").first
     end
 
     # Filtrar eventos apenas do artist selecionado
