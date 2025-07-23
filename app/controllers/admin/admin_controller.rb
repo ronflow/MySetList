@@ -10,7 +10,7 @@ module Admin
       if current_user
         @artist = current_user.artists.first
       else
-        @artist = Artist.find_by(name: 'Rock Flowerz')
+        @artist = Artist.where("name ILIKE ?", "%Flowerz%").first
       end
 
       # Filtrar eventos apenas do artist
