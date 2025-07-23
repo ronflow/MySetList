@@ -1,16 +1,19 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
- .logo {
-    display: block;
-    margin: 0 auto; /* Center the logo horizontally */
-    max-width: 200px; /* Adjust the size of the logo */
-    height: auto; /* Maintain aspect ratio */
-  }
+<!-- filepath: C:\DEV\MySetList\app\views\layouts\application.html.erb -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MySetList</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "pico.classless.min", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "mysetlist_custom", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+<% content_for :title, "Editing event set" %>
+
+<h1>Editing event set</h1>
+
+<%= render "form", event_set: @event_set %>
+
+<br>
+
+<div>
+  <%= link_to "Show this event set", @event_set %> |
+  <%= link_to "Back to event sets", event_sets_path %>
+</div>

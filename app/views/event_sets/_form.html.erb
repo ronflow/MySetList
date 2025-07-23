@@ -1,0 +1,37 @@
+<%= form_with(model: event_set) do |form| %>
+  <% if event_set.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(event_set.errors.count, "error") %> prohibited this event_set from being saved:</h2>
+
+      <ul>
+        <% event_set.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :event_id, style: "display: block" %>
+    <%= form.text_field :event_id %>
+  </div>
+
+  <div>
+    <%= form.label :artist_set_id, style: "display: block" %>
+    <%= form.text_field :artist_set_id %>
+  </div>
+
+  <div>
+    <%= form.label :position, style: "display: block" %>
+    <%= form.number_field :position %>
+  </div>
+
+  <div>
+    <%= form.label :active, style: "display: block" %>
+    <%= form.checkbox :active %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
