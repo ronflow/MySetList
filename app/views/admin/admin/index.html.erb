@@ -1,34 +1,48 @@
+<!-- filepath: app/views/admin/admin/index.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-2xl font-bold mb-6">Admin Dashboard</h1>
-  
-  <table class="min-w-full divide-y divide-gray-200">
-    <thead>
-      <tr>
-        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Date</th>
-        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      <% @events.each do |event| %>
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap"><%= event.event_date %></td>
-          <td class="px-6 py-4"><%= event.description %></td>
-          <td class="px-6 py-4">
-            <%= link_to "View Queue", admin_event_queue_path(event), 
-                class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" %>
-          </td>
-        </tr>
+
+  <div style="zoom: 75%;">
+
+    <% if current_user %>
+        <strong>User:</strong> <%= current_user.id %>
+    <% end %>
+
+    <% if @artist %>
+        <strong>Artista:</strong> <%= @artist.name %>
+        <strong>ID:</strong> <%= @artist.id %>
+    <% end %>
+    
+    <% if @events.any? %>
+      <table class="min-w-full divide-y divide-gray-200">
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @events.each do |event| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap"><%= event.event_date %></td>
+              <td class="px-6 py-4"><%= event.description %></td>
+              <td class="px-6 py-4"><%= event.artist&.name %></td>
+              <td class="px-6 py-4">
+                <%= link_to "Fila", admin_event_queue_path(event), 
+                    role: "button" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div style="text-align: center; padding: 20px; color: gray;">
+        <p>Nenhum evento encontrado para <%= @artist&.name || "este artist" %>.</p>
+      </div>
+    <% end %>
+
+    <div class="mb-4">
+      <%= link_to "🎭 Artistas", artists_path, 
+          role: "button" %>
+
+      <% if @artist %>
+        <%= link_to "📅 Eventos", events_path(artist_id: @artist.id), 
+          role: "button" %>
       <% end %>
-    </tbody>
-  </table>
-
-  <div class="mb-4">
-    <%= link_to "Ver Artistas", artists_path, 
-        class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700" %>
-
-    <%= link_to "Ver Eventos", events_path, 
-        class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 ml-4" %>
+    </div>
   </div>
-
 </div>

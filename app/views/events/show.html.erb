@@ -1,10 +1,23 @@
+<!-- app/views/events/show.html.erb -->
 <p style="color: green"><%= notice %></p>
 
-<%= render @event %>
+<div style="zoom: 75%;">
 
-<div>
-  <%= link_to "Edit this event", edit_event_path(@event) %> |
-  <%= link_to "Back to events", events_path %>
+  <%= render @event %>
 
-  <%= button_to "Destroy this event", @event, method: :delete %>
+  <div>
+    <%= link_to "Back to events", events_path, 
+        role: "button" %>
+    <%= link_to "Edit this event", edit_event_path(@event), 
+        role: "button" %>
+  </div>
+
+<hr>
+
+  <div>
+    <%= button_to "Destroy this event", @event, method: :delete, 
+        style: "background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
+        confirm: "Tem certeza que deseja deletar este evento?" %>
+  </div>
+
 </div>

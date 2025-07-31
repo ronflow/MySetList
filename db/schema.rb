@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_09_220249) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_22_205414) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,7 +64,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_220249) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "link1"
+    t.string "link2"
     t.index ["user_id"], name: "index_artists_on_user_id"
+  end
+
+  create_table "event_sets", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "artist_set_id", null: false
+    t.integer "position", default: 0
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artist_set_id"], name: "index_event_sets_on_artist_set_id"
+    t.index ["event_id", "artist_set_id"], name: "index_event_sets_on_event_id_and_artist_set_id", unique: true
+    t.index ["event_id", "position"], name: "index_event_sets_on_event_id_and_position"
+    t.index ["event_id"], name: "index_event_sets_on_event_id"
   end
 
   create_table "event_song_queues", force: :cascade do |t|
@@ -86,6 +101,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_220249) do
     t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "artist_id"
+    t.index ["artist_id"], name: "index_events_on_artist_id"
   end
 
   create_table "performers", force: :cascade do |t|
@@ -119,7 +136,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_220249) do
   add_foreign_key "artist_set_songs", "songs"
   add_foreign_key "artist_sets", "artists"
   add_foreign_key "artists", "users"
+  add_foreign_key "event_sets", "artist_sets"
+  add_foreign_key "event_sets", "events"
   add_foreign_key "event_song_queues", "events"
   add_foreign_key "event_song_queues", "performers"
   add_foreign_key "event_song_queues", "songs"
+  add_foreign_key "events", "artists"
 end

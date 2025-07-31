@@ -1,16 +1,43 @@
-<p style="color: green"><%= notice %></p>
+<!-- app/views/artists/index.html.erb -->
+<div style="zoom: 75%;">
+  <h1>Meus Artistas</h1>
 
-<% content_for :title, "Artists" %>
+  <br>
 
-<h1>Artists</h1>
-
-<div id="artists">
   <% @artists.each do |artist| %>
-    <%= render artist %>
-    <p>
-      <%= link_to "Show this artist", artist %>
-    </p>
+    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+      <!-- Logo do Artist -->
+      <div style="margin-right: 20px;">
+        <% if artist.logo.present? %>
+          <%= image_tag artist.logo, 
+              alt: "Logo de #{artist.name}", 
+              style: "width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" %>
+        <% else %>
+          <div style="width: 80px; height: 80px; background-color: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+            <span style="font-size: 12px; text-align: center;">Sem<br>Logo</span>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Informações do Artist -->
+      <div>
+        <h2 style="margin: 0 0 10px 0;"><%= artist.name %></h2>
+        <div>
+          <%= link_to "Ver artista", artist_path(artist), 
+              role: "button" %>
+        </div>
+      </div>
+    </div>
+    <hr>
   <% end %>
-</div>
 
-<%= link_to "New artist", new_artist_path %>
+  <%= link_to "New artist", new_artist_path, 
+      role: "button" %>
+
+  <hr>
+
+  <!-- app/views/artists/index.html.erb -->
+  <%= link_to "Voltar para o Admin", admin_root_path, 
+    role: "button" %>
+      
+</div>

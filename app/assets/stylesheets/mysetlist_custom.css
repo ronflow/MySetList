@@ -1,0 +1,168 @@
+/* ==============================================
+   CUSTOMIZAÇÕES ESPECÍFICAS DO MYSETLIST
+   ============================================== */
+
+/* Botões personalizados - Cor Azul MySetList */
+[role="button"], 
+button, 
+input[type="submit"], 
+input[type="button"],
+input[type="reset"] {
+  background-color: #0056b3 !important;
+  border-color: #0056b3 !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  margin: 2px !important;
+  cursor: pointer !important;
+}
+
+/* Hover dos botões */
+[role="button"]:hover, 
+button:hover, 
+input[type="submit"]:hover, 
+input[type="button"]:hover {
+  background-color: #004085 !important;
+  border-color: #004085 !important;
+}
+
+/* Botões de ação perigosa (vermelho) */
+.btn-danger,
+.button-danger,
+button[data-confirm] {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+.btn-danger:hover,
+.button-danger:hover,
+button[data-confirm]:hover {
+  background-color: #c82333 !important;
+  border-color: #c82333 !important;
+}
+
+/* Botões de sucesso (verde) */
+.btn-success,
+.button-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+.btn-success:hover,
+.button-success:hover {
+  background-color: #218838 !important;
+  border-color: #218838 !important;
+}
+
+/* Zoom específico para algumas views */
+.zoom-75 {
+  zoom: 75%;
+}
+
+/* Tabelas personalizadas */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 15px 0;
+}
+
+table th,
+table td {
+  border: 1px solid #dee2e6;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+table thead th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+/* Formulários */
+input[type="text"],
+input[type="url"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* Containers com scroll */
+.scroll-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Notificações */
+.notice,
+p[style*="color: green"] {
+  color: #155724 !important;
+  background-color: #d4edda !important;
+  border: 1px solid #c3e6cb !important;
+  padding: 10px !important;
+  border-radius: 4px !important;
+  margin: 10px 0 !important;
+}
+
+/* Separadores */
+hr {
+  border: none;
+  border-top: 1px solid #dee2e6;
+  margin: 20px 0;
+}
+
+/* Espaçamentos */
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.p-15 {
+  padding: 15px;
+}
+
+/* Cores de texto */
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-white {
+  color: white !important;
+}
+
+/* Centralizações */
+.text-center {
+  text-align: center;
+}
+
+/* Bordas */
+.border {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+
+/* Background */
+.bg-light {
+  background-color: #f8f9fa;
+}

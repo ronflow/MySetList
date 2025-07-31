@@ -1,11 +1,119 @@
-<p style="color: green"><%= notice %></p>
+<!-- filepath: app/views/artist_sets/show.html.erb -->
+<div style="zoom: 75%;">
+  <p style="color: green"><%= notice %></p>
 
-<%= render @artist_set %>
+  <div>
+    <strong>Artist:</strong> <%= @artist_set.artist.name %> | <%= render @artist_set %>
+  </div>
 
-<div>
-  <%= link_to "Edit this artist set", edit_artist_set_path(@artist_set) %> |
-  <%= link_to "Back to artist sets", artist_sets_path %> |
-  <%= link_to "Ver músicas deste set", artist_set_artist_set_songs_path(@artist_set) %> |
+  <div>
+    <%= link_to "Back to sets", artist_path(@artist_set.artist) %> |
+    <%= link_to "Edit this set", edit_artist_set_path(@artist_set) %>  
+    <%= button_to "Destroy this artist set", @artist_set, method: :delete %>
+  </div>
 
-  <%= button_to "Destroy this artist set", @artist_set, method: :delete %>
+  <hr>
+
+  <!-- PRIMEIRA TABELA: Músicas no Set -->
+  <h2>Músicas no Set (<%= @songs.count %>)</h2>
+
+  <!-- Formulário de busca para músicas do set -->
+  <%= form_with url: artist_set_path(@artist_set), method: :get, local: true do %>
+    <%= label_tag :search_set, "Buscar música no set" %>
+    <%= text_field_tag :search_set, params[:search_set] %>
+    <%= submit_tag "Buscar no Set" %>
+    <%= link_to "Mostrar todas do set", artist_set_path(@artist_set) %>
+  <% end %>
+
+  <br>
+
+  <% if @songs.present? %>
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc;">
+      <table>
+        <thead>
+          <tr>
+            <th>Música</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% filtered_songs = params[:search_set].present? ? @songs.where("name ILIKE ?", "%#{params[:search_set]}%") : @songs %>
+          <% filtered_songs.each do |song| %>
+            <tr>
+              <td><%= song.name %></td>
+              <td>
+                <%= button_to "Remover", 
+                    remover_musicas_artist_artist_set_path(@artist_set.artist, @artist_set), 
+                    method: :delete, 
+                    params: { song_ids: [song.id] },
+                    class: "button",
+                    confirm: "Remover '#{song.name}' do set?",
+                    local: true %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p style="color: gray; font-style: italic;">Nenhuma música no set ainda.</p>
+  <% end %>
+
+  <hr>
+
+  <!-- SEGUNDA TABELA: Todas as Músicas Disponíveis -->
+  <h2>Adicionar Músicas ao Set</h2>
+
+  <!-- Formulário de busca para todas as músicas -->
+  <%= form_with url: artist_set_path(@artist_set), method: :get, local: true do %>
+    <%= label_tag :query, "Buscar música" %>
+    <%= text_field_tag :query, params[:query] %>
+    <%= submit_tag "Buscar" %>
+    <%= link_to "Mostrar todas", artist_set_path(@artist_set) %>
+    <%= link_to "Ordenar por nome", artist_set_path(@artist_set, order: "name") %>
+  <% end %>
+
+  <br>
+
+  <% if @all_songs.present? %>
+    <h3>
+      <%= if params[:query].present?
+            "Músicas encontradas (#{@all_songs.count})"
+          else
+            "Todas as músicas disponíveis (#{@all_songs.count})"
+          end %>
+    </h3>
+    
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc;">
+      <table>
+        <thead>
+          <tr>
+            <th>Música</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @all_songs.each do |song| %>
+            <% is_in_set = @songs.include?(song) %>
+            <tr>
+              <td><%= song.name %></td>
+              <td>
+                <% unless is_in_set %>
+                  <%= button_to "Adicionar ao Set", adicionar_musicas_artist_set_path(@artist_set), 
+                      method: :post, 
+                      params: { song_ids: [song.id] },
+                      class: "button",
+                      local: true %>
+                <% else %>
+                  <span style="color: green; font-weight: bold;">Adicionada ao set</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p>Use a busca acima para encontrar músicas.</p>
+  <% end %>
 </div>
