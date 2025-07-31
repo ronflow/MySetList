@@ -40,7 +40,7 @@
 
 
 
-*.lock
+# *.lock
 /config/database.yml
 
 
