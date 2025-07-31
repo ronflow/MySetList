@@ -1,6 +1,13 @@
 <div style="zoom: 75%;">
   <h2><%= @event.description %></h2>
 
+  <!-- Debug para verificar se @event.artist existe -->
+    <% if @event.artist %>
+      <strong>Artista:</strong> <%= @event.artist.name %>
+    <% else %>
+      <strong style="color: red;">Nenhum artist associado a este evento</strong>
+    <% end %>
+
   <%= form_with url: event_event_song_queues_path(@event), method: :get, local: true do %>
     <%= submit_tag ">>> Ver FILA de Artistas <<<", class: "button" %>
   <% end %>
@@ -8,10 +15,25 @@
 
   <% if notice %>
     <p style="color: green;"><%= notice %></p>
-    <%= link_to "Clique e participe das discussões Bandaoke em nosso Grupo do WhatsApp", "https://chat.whatsapp.com/CCt1zLfHMTp9tvnkr94ePt", target: "_blank" %>
-    <br>
-    <%= link_to "Clique aqui e apoie seguindo a Rock.Flowerz no INSTAGRAM", "https://www.instagram.com/rock.flowerz", target: "_blank" %>
-    <br> 
+    
+    <% if @event.artist.present? %>
+      <p style="text-align: center; font-size: 32px; color: white; margin: 15px 0;">
+        📱 <strong>Acompanhe <%= @event.artist.name %> nas redes sociais!</strong>
+      </p>
+      
+      <div style="text-align: center;">
+        <% if @event.artist.link1.present? %>
+          <%= link_to "WhatsApp", @event.artist.link1, target: "_blank", 
+              role: "button" %>
+        <% end %>
+        
+        <% if @event.artist.link2.present? %>
+          <%= link_to "Instagram", @event.artist.link2, target: "_blank", 
+              role: "button" %>
+        <% end %>
+      </div>
+    <% end %>
+    
     <br>
   <% end %>
 

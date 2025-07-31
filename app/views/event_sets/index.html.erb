@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Event sets" %>
+
+<h1>Event sets</h1>
+
+<div id="event_sets">
+  <% @event_sets.each do |event_set| %>
+    <%= render event_set %>
+    <p>
+      <%= link_to "Show this event set", event_set %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New event set", new_event_set_path %>

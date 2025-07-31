@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  event: one
+  artist_set: one
+  position: 1
+  active: false
+
+two:
+  event: two
+  artist_set: two
+  position: 1
+  active: false
