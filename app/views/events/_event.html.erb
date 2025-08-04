@@ -1,30 +1,47 @@
 <!-- filepath: app/views/events/_event.html.erb -->
 <div id="<%= dom_id event %>">
   <p>
-    <strong>Event date:</strong>
+    <strong>Data do Evento:</strong>
     <%= event.event_date %>
   </p>
 
   <p>
-    <strong>Artist:</strong>
-    <%= event.artist&.name || "Nenhum artist associado" %>
+    <strong>Artista:</strong>
+    <%= event.artist&.name || "Nenhum artista associado" %>
   </p>
 
-  <% if event.artist_set %>
+  <% if event.artist_set.present? %>
     <p>
       <strong>Set:</strong>
       <%= event.artist_set.set_list_name %> 
       (<%= event.artist_set.songs.count %> música<%= 's' if event.artist_set.songs.count != 1 %>)
     </p>
+  <% elsif event.artist&.artist_sets&.any? %>
+    <p>
+      <strong>Sets disponíveis:</strong>
+      <% event.artist.artist_sets.each_with_index do |artist_set, index| %>
+        <span style="color: #007bff;">
+          <%= artist_set.set_list_name %>
+          (<%= artist_set.songs.count %> música<%= 's' if artist_set.songs.count != 1 %>)
+        </span>
+        <%= ', ' if index < event.artist.artist_sets.count - 1 %>
+      <% end %>
+    </p>
   <% else %>
     <p>
-      <strong>Set:</strong>
-      <span style="color: gray;">Todas as músicas disponíveis</span>
+      <strong>Repertório completo:</strong>
+      <% if event.artist&.songs&.any? %>
+        <span style="color: #28a745;">
+          <%= event.artist.songs.count %> música<%= 's' if event.artist.songs.count != 1 %> do repertório
+        </span>
+      <% else %>
+        <span style="color: gray;">Nenhuma música no repertório</span>
+      <% end %>
     </p>
   <% end %>
 
   <p>
-    <strong>Description:</strong>
+    <strong>Descrição:</strong>
     <%= event.description %>
   </p>
 </div>

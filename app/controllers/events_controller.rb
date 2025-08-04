@@ -1,5 +1,6 @@
+# app/controllers/events_controller.rb
 class EventsController < ApplicationController
-  before_action :set_event, only: %i[ show edit update destroy ]
+  before_action :set_event, only: %i[ show edit update destroy showpublico ]
 
   skip_before_action :authenticate_user!, only: [:showpublico]
 
@@ -22,20 +23,60 @@ class EventsController < ApplicationController
     @events = @events.order(:event_date)
   end
 
-
-  # novo show para o publico do evento
+  # Página pública do evento - ROBUSTA e DEFENSIVA
   def showpublico
     @event = Event.find(params[:id])
-  
-    if params[:query].present?
-      # Busca por músicas associadas ao evento
-      @songs = Song.where("name ILIKE ?", "%#{params[:query]}%")
-    else
-      @songs = Song.all
+    @artist = @event.artist
+    
+    # Buscar songs de forma mais simples e robusta
+    @songs = []
+    
+    begin
+      # 1. Tentar buscar através dos artist_songs do artist
+      if @artist&.artist_songs&.any?
+        @songs = @artist.songs.distinct
+      end
+      
+      # 2. Se não encontrou, buscar todas as songs que o artist tem acesso
+      if @songs.empty?
+        # Buscar songs através de qualquer relacionamento
+        song_ids = []
+        
+        # Através de artist_songs
+        if @artist&.artist_songs&.any?
+          song_ids += @artist.artist_songs.pluck(:song_id)
+        end
+        
+        # Através de artist_sets
+        if @artist&.artist_sets&.any?
+          @artist.artist_sets.each do |artist_set|
+            song_ids += artist_set.artist_songs.pluck(:song_id) if artist_set.artist_songs.any?
+          end
+        end
+        
+        @songs = Song.where(id: song_ids.uniq) if song_ids.any?
+      end
+      
+      # 3. Fallback: se ainda não encontrou, usar todas as songs do sistema
+      if @songs.empty?
+        @songs = Song.limit(10) # Limitar para teste
+      end
+      
+    rescue => e
+      # Em caso de erro, usar approach mais simples
+      @songs = @artist&.songs || Song.limit(10)
     end
-    @songs = @songs.order(:name)
+    
+    # Aplicar filtro de busca se presente
+    if params[:query].present? && @songs.respond_to?(:where)
+      @songs = @songs.where("name ILIKE ?", "%#{params[:query]}%")
+    end
+    
+    # Ordenar por nome
+    if @songs.respond_to?(:order)
+      @songs = @songs.order(:name)
+    end
   end
-
   # GET /events/1 or /events/1.json
   def show
     @event = Event.find(params[:id])
@@ -43,7 +84,7 @@ class EventsController < ApplicationController
 
   # GET /events/new
   def new
-    @event = Event.new # NÃO chame event_params aqui
+    @event = Event.new
   end
 
   # GET /events/1/edit
@@ -52,23 +93,17 @@ class EventsController < ApplicationController
 
   # POST /events or /events.json
   def create
-    @event = Event.new(event_params) # event_params é usado APENAS aqui
-    
-    # Se não há artist_set_id mas há artist_set_ids, usar o primeiro
-    if @event.artist_set_id.blank? && params[:event][:artist_set_ids].present?
-      first_set_id = params[:event][:artist_set_ids].reject(&:blank?).first
-      @event.artist_set_id = first_set_id if first_set_id.present?
-    end
-    
-    # Se ainda não há set, usar o primeiro do artist
-    if @event.artist_set_id.blank? && @event.artist.present?
-      @event.artist_set_id = @event.artist.artist_sets.first&.id
-    end
+    @event = Event.new(event_params.except(:artist_set_id, :artist_set_ids))
 
     respond_to do |format|
       if @event.save
+        set_ids = params[:event][:artist_set_ids].reject(&:blank?) if params[:event][:artist_set_ids]
 
-        @event.create_event_sets!
+        if set_ids.present?
+          set_ids.each do |set_id|
+            EventSet.create(event_id: @event.id, artist_set_id: set_id)
+          end
+        end
 
         format.html { redirect_to @event, notice: "Event was successfully created." }
         format.json { render :show, status: :created, location: @event }
@@ -79,28 +114,11 @@ class EventsController < ApplicationController
     end
   end
 
-  def showpublico
-    @event = Event.find(params[:id])
-    
-    # Usar músicas do set se definido, senão todas as músicas
-    all_songs = @event.available_songs
-    
-    if params[:query].present?
-      @songs = all_songs.where("name ILIKE ?", "%#{params[:query]}%")
-    else
-      @songs = all_songs
-    end
-    
-    @songs = @songs.order(:name)
-  end
-
   # PATCH/PUT /events/1 or /events/1.json
   def update
     respond_to do |format|
-      
-      if @event.update(event_params) # event_params é usado APENAS aqui também
-
-        @event.create_event_sets!
+      if @event.update(event_params)
+        @event.create_event_sets! if @event.respond_to?(:create_event_sets!)
 
         format.html { redirect_to @event, notice: "Event was successfully updated." }
         format.json { render :show, status: :ok, location: @event }
@@ -122,13 +140,14 @@ class EventsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_event
-      @event = Event.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def event_params
-      params.require(:event).permit(:event_date, :description, :artist_id, :artist_set_id, artist_set_ids: [])
-    end
+  def set_event
+    @event = Event.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path, alert: "Evento não encontrado."
+  end
+
+  def event_params
+    params.require(:event).permit(:event_date, :description, :artist_id)
+  end
 end

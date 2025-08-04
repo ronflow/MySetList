@@ -22,22 +22,34 @@
       <!-- Informações do Artist -->
       <div>
         <h2 style="margin: 0 0 10px 0;"><%= artist.name %></h2>
-        <div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <%= link_to "Ver artista", artist_path(artist), 
               role: "button" %>
+
+          <%= link_to "Editar Artista", edit_artist_path(artist), 
+              role: "button" %>
+
+          <%= link_to "Eventos (#{artist.events.count})", 
+              events_path(artist_id: artist.id), 
+              role: "button", 
+              class: "btn-success" %>
         </div>
       </div>
     </div>
     <hr>
   <% end %>
 
-  <%= link_to "New artist", new_artist_path, 
-      role: "button" %>
+  <!-- No topo da página de sets do artista -->
+  <%= link_to "Importar Músicas", import_csv_songs_path, class: "btn btn-success" %>
+
+  <% if current_user && current_user.artists.empty? %>
+    <%= link_to "Novo Artista", new_artist_path, role: "button" %>
+  <% end %>
 
   <hr>
 
   <!-- app/views/artists/index.html.erb -->
-  <%= link_to "Voltar para o Admin", admin_root_path, 
+  <%= link_to "Voltar para Admin", admin_root_path, 
     role: "button" %>
       
 </div>

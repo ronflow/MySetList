@@ -1,0 +1,16 @@
+<h1>Redefinir senha</h1>
+
+<%= form_with url: password_path(@token), method: :patch, local: true do |form| %>
+  <div>
+    <%= form.label :password, "Nova senha:" %><br>
+    <%= form.password_field :password, required: true, autofocus: true %>
+  </div>
+  <div>
+    <%= form.label :password_confirmation, "Confirme a nova senha:" %><br>
+    <%= form.password_field :password_confirmation, required: true %>
+  </div>
+  <br>
+  <div>
+    <%= form.submit "Redefinir senha" %>
+  </div>
+<% end %>

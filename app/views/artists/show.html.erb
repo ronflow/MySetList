@@ -6,16 +6,20 @@
     <%= image_tag @artist.logo, width: 150 %>
   <% end %>
 
+  <br>
+
+  <br>
+
   <div>
-    <strong>Artist:</strong> <%= @artist.name %> <strong>ID:</strong> <%= @artist.id %>
+    <strong>Artista:</strong> <%= @artist.name %> <strong>ID:</strong> <%= @artist.id %>
   </div>
 
   <br>
 
   <div>
-    <%= link_to "Back to artists", artists_path, 
+    <%= link_to "Voltar para Artista", artists_path, 
         role: "button" %>
-    <%= link_to "Edit this artist", edit_artist_path(@artist), 
+    <%= link_to "Editar Artista", edit_artist_path(@artist), 
         role: "button" %>
   </div>
 
@@ -28,26 +32,34 @@
           role: "button" %>
   <% end %>
 
+  <br>
+
   <% @artist_sets.each do |artist_set| %>
     <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
       <h2><%= artist_set.set_list_name %></h2>
-      <%= link_to "Ver Sets", show_sets_pub_artist_artist_set_path(artist_id: @artist.id, id: artist_set.id), 
-          role: "button" %>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <%= link_to "📋 Ver e Inserir via Base do App", show_sets_pub_artist_artist_set_path(@artist.id, artist_set.id), 
+            role: "button",
+            style: "background-color: #6f42c1; color: white;" %>
+        <%= link_to "🌐 Ver e Inserir via WEB", show_set_web_pub_artist_artist_set_path(@artist.id, artist_set.id), 
+            role: "button", 
+            style: "background-color: #17a2b8; color: white;" %>
+      </div>
     </div>
   <% end %>
 
   <hr>
 
   <div style="margin: 20px 0;">
-    <%= link_to "New Sets", new_artist_artist_set_path(@artist), 
+    <%= link_to "Novo Setlist", new_artist_artist_set_path(@artist), 
         role: "button" %>
   </div>
 
   <hr>
 
   <div>
-    <%= button_to "Destroy this artist", @artist, method: :delete, 
+    <!-- %= button_to "Destroy this artist", @artist, method: :delete, 
         style: "background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
-        confirm: "Tem certeza que deseja deletar este artist?" %>
+        confirm: "Tem certeza que deseja deletar este artist?" % -->
   </div>
 </div>

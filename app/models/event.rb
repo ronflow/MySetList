@@ -1,30 +1,34 @@
 # app/models/event.rb
 class Event < ApplicationRecord
   belongs_to :artist
-  belongs_to :artist_set, optional: true
   
+  # Relacionamentos
   has_many :event_sets, dependent: :destroy
-  has_many :selected_artist_sets, through: :event_sets, source: :artist_set
-  
   has_many :event_song_queues, dependent: :destroy
-  has_many :songs, through: :event_song_queues
+  has_many :artist_sets, through: :event_sets
+  
+  validates :event_date, presence: true
+  validates :description, presence: true
 
   # APENAS ESTES MÉTODOS SIMPLES:
   
-  # Getter para artist_set_ids (IMPORTANTE para edição)
-  def artist_set_ids
-    event_sets.pluck(:artist_set_id)
+  # Método para pegar o primeiro artist_set ativo (se houver)
+  def artist_set
+    event_sets.joins(:artist_set).where(active: true).first&.artist_set
   end
   
-  # Setter para artist_set_ids (versão simples)
-  def artist_set_ids=(ids)
-    # Apenas armazenar para usar no controller
-    @pending_artist_set_ids = Array(ids).reject(&:blank?).map(&:to_i)
+  # Método para pegar todos os artist_sets ativos
+  def active_artist_sets
+    artist_sets.joins(:event_sets).where(event_sets: { active: true })
   end
-
-  # Método para obter os IDs pendentes
-  def pending_artist_set_ids
-    @pending_artist_set_ids || []
+  
+  # Método simplificado para buscar songs
+  def available_songs
+    if artist_set.present?
+      artist_set.songs.distinct
+    else
+      artist.songs.distinct
+    end
   end
 
   # Método para criar os event_sets após salvar
@@ -46,15 +50,30 @@ class Event < ApplicationRecord
     @pending_artist_set_ids = nil
   end
 
+  # Método simplificado para buscar songs
   def available_songs
-    if event_sets.where(active: true).any?
-      Song.joins(artist_set_songs: { artist_set: :event_sets })
-          .where(event_sets: { event_id: id, active: true })
+    # Retorna todas as songs do artist
+    artist.songs.distinct
+  end
+
+  def songs_for_event
+    # Primeiro: buscar por event_sets ativos
+    active_event_sets = event_sets.where(active: true)
+    
+    if active_event_sets.any?
+      # Se existem event_sets ativos, buscar songs através deles
+      Song.joins(artist_set_songs: { artist_set: { event_sets: :event } })
+          .where(events: { id: self.id }, event_sets: { active: true })
           .distinct
-    elsif artist_set.present?
-      artist_set.songs
     else
-      Song.all
+      # Caso contrário, buscar pelo artist_set padrão do artist
+      if artist&.artist_sets&.any?
+        artist_set = artist.artist_sets.first
+        artist_set.songs
+      else
+        # Se não há sets, retornar collection vazia
+        Song.none
+      end
     end
   end
 end

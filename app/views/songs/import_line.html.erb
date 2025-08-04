@@ -1,0 +1,30 @@
+<!-- filepath: c:\DEV\MySetList\app\views\songs\import_line.html.erb -->
+<h2>Tratamento de Importação</h2>
+
+<% if @found %>
+  <h3>Música encontrada</h3>
+  <p><strong>song_id:</strong> <%= @song.id %></p>
+  <p><strong>Nome da música:</strong> <%= @song.name %></p>
+  <p><strong>Banda:</strong> <%= @song.band %></p>
+  <p><strong>Letra atual:</strong> <%= @letra_atual %></p>
+  <p><strong>Letra do CSV:</strong> <%= @letra_csv %></p>
+  <%= button_to "Cancelar importação", cancel_import_songs_path, method: :post %>
+  <%= button_to "Importar letra", import_line_action_songs_path(action_type: "import_lyrics"), method: :post %>
+  <%= button_to "Próxima música", import_line_action_songs_path(action_type: "next"), method: :post %>
+<% else %>
+  <h3>Música não encontrada</h3>
+  <p><strong>Nome da música:</strong> <%= @song_name %></p>
+  <p><strong>Banda:</strong> <%= @band %></p>
+  <h4>Opções do MusicBrainz:</h4>
+  <%= form_with url: import_line_action_songs_path(action_type: "import_music"), method: :post do |form| %>
+    <% @musicbrainz_results.each do |result| %>
+      <div>
+        <%= form.radio_button :musicbrainz_option, result[:id] %>
+        <%= result[:title] %> - <%= result[:artist] %>
+      </div>
+    <% end %>
+    <%= button_to "Cancelar importação", cancel_import_songs_path, method: :post %>
+    <%= form.submit "Importar música e letra" %>
+    <%= button_to "Próxima música", import_line_action_songs_path(action_type: "next"), method: :post %>
+  <% end %>
+<% end %>

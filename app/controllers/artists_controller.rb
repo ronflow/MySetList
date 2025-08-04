@@ -1,5 +1,5 @@
 class ArtistsController < ApplicationController
-  before_action :set_artist, only: %i[ show edit update destroy ]
+  before_action :set_artist, only: [:show, :edit, :update, :destroy]
 
   # GET /artists or /artists.json
   def index
@@ -28,12 +28,9 @@ class ArtistsController < ApplicationController
 
   # GET /artists/1 or /artists/1.json
   def show
+    @artist_songs = @artist.artist_songs.includes(:song)
+    @songs = @artist.songs
     @artist_sets = @artist.artist_sets
-    
-    # Busca por sets se houver query
-    if params[:query].present?
-      @artist_sets = @artist_sets.where("set_list_name ILIKE ?", "%#{params[:query]}%")
-    end
   end
 
   # GET /artists/new
@@ -88,17 +85,25 @@ class ArtistsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_artist
-      if current_user
-        @artist = current_user.artists.find(params[:id])
-      else
-        @artist = Artist.find(params[:id])
-      end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_artist
+    if current_user
+      @artist = current_user.artists.find(params[:id])
+    else
+      @artist = Artist.find(params[:id])
     end
+  end
 
-    # Only allow a list of trusted parameters through.
-    def artist_params
-      params.require(:artist).permit(:name, :logo, :link1, :link2)
+  # Only allow a list of trusted parameters through.
+  def set_artist
+    if current_user
+      @artist = current_user.artists.find(params[:id])
+    else
+      @artist = Artist.find(params[:id])
     end
+  end
+
+  def artist_params
+    params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo)
+  end
 end

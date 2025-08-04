@@ -1,25 +1,21 @@
 # config/routes.rb
 Rails.application.routes.draw do
-  
   # =========================
-  # ROTAS BÁSICAS DO SISTEMA
+  # PÁGINA INICIAL
   # =========================
-  
-  # Página inicial
   root "welcome#index"
   
-  # Rotas de saúde e páginas estáticas
+  # =========================
+  # ROTAS DE SISTEMA
+  # =========================
   get "up" => "rails/health#show", as: :rails_health_check
-  get "events/index"
-  get "songs/index"
   get "welcome/index"
   
   # =========================
   # AUTENTICAÇÃO E USUÁRIOS
   # =========================
-  
   resources :users, only: [:new, :create, :show]
-  resources :passwords, param: :token
+  resources :passwords, only: [:new, :create, :edit, :update], param: :token
   resource :sessions, only: [:new, :create, :destroy]
   
   # Aliases para login/logout
@@ -30,7 +26,6 @@ Rails.application.routes.draw do
   # =========================
   # EVENTOS
   # =========================
-  
   resources :events do
     member do
       get :showpublico
@@ -44,48 +39,57 @@ Rails.application.routes.draw do
   end
   
   # =========================
-  # MÚSICAS
+  # MÚSICAS (SONGS)
   # =========================
-  
-  resources :songs, only: [:index] do 
+  resources :songs do
     member do
       get :lyrics
     end
+    collection do
+      get :import_csv
+      post :process_csv
+      get :import_line
+      post :import_line_action
+      post :cancel_import
+    end
+    # Songs por artist
+    resources :artists, only: [:index, :show]
   end
+  
+  # =========================
+  # RELACIONAMENTO ARTIST-SONG
+  # =========================
+  resources :artist_songs
   
   # =========================
   # ARTISTS E SETS (PRINCIPAL)
   # =========================
-  
   resources :artists do
-    member do
-      get :public_sets
-    end
+    # Songs do artist
+    resources :songs, only: [:index, :show]
+    
+    # Sets do artist
     resources :artist_sets do
       member do
+        # Visualização e inserção via base do app
         get :show_sets_pub
         post :adicionar_musicas
         delete :remover_musicas
-        get :public_songs
+        
+        # Visualização e inserção via web (MusicBrainz)
+        get :show_set_web_pub
+        post :buscar_musicbrainz
+        post :adicionar_musicas_web
       end
+      
+      # Songs dos sets
+      resources :artist_set_songs, except: [:show, :edit]
     end
   end
-  
-  # =========================
-  # RECURSOS INDEPENDENTES
-  # =========================
-  
-  resources :artist_sets do
-    resources :artist_set_songs
-  end
-  
-  resources :artist_set_songs
-  resources :event_sets  # Movido para cá, removendo a duplicata
   
   # =========================
   # ADMIN
   # =========================
-  
   namespace :admin do
     resources :events do
       member do
@@ -96,4 +100,9 @@ Rails.application.routes.draw do
     get 'events/:event_id/queue', to: 'admin#show_queue', as: 'event_queue'
   end
   
+  # =========================
+  # ROTAS DE DESENVOLVIMENTO
+  # =========================
+  get "events/index" if Rails.env.development?
+  get "songs/index" if Rails.env.development?
 end

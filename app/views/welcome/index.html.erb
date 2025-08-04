@@ -1,5 +1,4 @@
-<!-- filepath: app/views/welcome/index.html.erb -->
-
+<!-- app/views/welcome/index.html.erb -->
 <div style="zoom: 75%;">
 
   <table>
@@ -17,6 +16,27 @@
     </tr>
   </table>
 
+  <!-- Seção de redes sociais fixa - ALINHADA À ESQUERDA -->
+  <div style="margin: 20px 0; padding: 15px 0;">
+    <% if @artist.present? %>
+      <p style="font-size: 20px; color: white; margin-bottom: 10px;">
+        📱 <strong>Siga <%= @artist.name %>:</strong>
+      </p>
+      
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <% if @artist.link1.present? %>
+          <%= link_to (@artist.link1_text.presence || "WhatsApp"), 
+              @artist.link1, target: "_blank", role: "button" %>
+        <% end %>
+        
+        <% if @artist.link2.present? %>
+          <%= link_to (@artist.link2_text.presence || "Instagram"), 
+              @artist.link2, target: "_blank", role: "button" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
   <table>
     <tr>
       <td>
@@ -33,7 +53,8 @@
           <% if @events.any? %>
             <% @events.each do |event| %>
               <li>
-                <%= link_to "#{event.event_date} - #{event.description}", showpublico_event_path(event) %>
+                <%= link_to "#{event.event_date} - #{event.description}", 
+                    showpublico_event_path(event, artist_name: @artist&.name) %>
                 <small style="color: #666;">(Artista: <%= event.artist&.name || "Não informado" %>)</small>
               </li>
             <% end %>
