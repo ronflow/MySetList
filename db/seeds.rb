@@ -22,4 +22,4 @@
 # Event.create!(event_date: "2025-06-12", locale: "Gaz Burning", description: "Rock Flowerz - Namorados - Quinta - 12/jun")
 # Event.create!(event_date: "2025-06-22", locale: "Gaz Burning", description: "Burning House Flowerz - Domingo - 22/jun")
 # Update all songs with blank name to 'Black'
-Song.where(name: [nil, ""]).update_all(name: "Black")
+# Song.where(name: [nil, ""]).update_all(name: "Black")
