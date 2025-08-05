@@ -1,29 +1,28 @@
 <!-- app/views/artist_sets/show_sets_pub.html.erb -->
 <div style="zoom: 75%;">
   <p style="color: green"><%= notice %></p>
+  <p style="color: red"><%= alert %></p>
 
   <div>
-    <%= render @artist_set %>
+    <h1>Buscar e Inserir do Banco de Dados</h1>
+    <h2>Set: <%= @artist_set.set_list_name %> | Artist: <%= @artist.name %></h2>
   </div>
 
   <div>
-    <%= link_to "Back to sets", artist_path(@artist_set.artist), 
+    <%= link_to "Voltar para Sets", artist_path(@artist_set.artist), 
         role: "button" %>
   </div>
 
   <hr>
 
   <!-- PRIMEIRA TABELA: Músicas no Set -->
-  <h2>Músicas no Set (<%= @songs.count %>)</h2>
+  <h2>🎵 Músicas no Set (<%= @songs.count %>)</h2>
 
   <!-- Formulário de busca para músicas do set -->
   <%= form_with url: show_sets_pub_artist_artist_set_path(@artist_set.artist, @artist_set), method: :get, local: true do %>
     <%= label_tag :search_set, "Buscar músicas no set" %>
     <%= text_field_tag :search_set, params[:search_set] %>
-    <%= submit_tag "Buscar no Set", 
-        role: "button" %>
-    <%= link_to "Mostrar todas do set", show_sets_pub_artist_artist_set_path(@artist_set.artist, @artist_set),
-        role: "button" %>
+    <%= submit_tag "Buscar no Set", role: "button" %>
   <% end %>
 
   <br>
@@ -34,20 +33,39 @@
         <thead>
           <tr>
             <th>Música</th>
+            <th>Banda</th>
+            <th>Status</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
           <% @songs.each do |song| %>
+            <% artist_song = @artist.artist_songs.find_by(song: song) %>
             <tr>
-              <td><%= song.name %></td>
+              <td><strong><%= song.name %></strong></td>
+              <td><%= song.band %></td>
               <td>
-                <%= button_to "Remover", remover_musicas_artist_artist_set_path(@artist_set.artist, @artist_set), 
+                <% if artist_song %>
+                  <span style="color: green;">✅ No repertório</span>
+                  <% if artist_song.letra.present? %>
+                    <br><small style="color: #666;">Letra personalizada</small>
+                  <% end %>
+                <% else %>
+                  <span style="color: orange;">⚠️ Apenas no set</span>
+                <% end %>
+              </td>
+              <td>
+                <%= button_to "Remover do Set", remover_musicas_artist_artist_set_path(@artist_set.artist, @artist_set), 
                     method: :delete, 
                     params: { song_ids: [song.id] },
                     style: "background-color: #dc3545; color: white; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;",
                     confirm: "Remover '#{song.name}' do set?",
                     local: true %>
+                    
+                <% if artist_song %>
+                  <%= link_to "Ver/Editar", artist_song_path(artist_song), 
+                      style: "background-color: #dc3545; color: white; padding: 4px 8px; text-decoration: none; border-radius: 4px; font-size: 12px; margin-left: 5px;" %>
+                <% end %>
               </td>
             </tr>
           <% end %>
@@ -62,22 +80,14 @@
 
   <hr>
 
-  <!-- SEGUNDA TABELA: Todas as Músicas Disponíveis com Seleção Múltipla -->
-  <h2>Adicionar Músicas ao Set</h2>
+  <!-- SEGUNDA TABELA: Todas as Músicas Disponíveis -->
+  <h2>📋 Adicionar Músicas ao Set</h2>
 
-  <!-- Formulário de busca para todas as músicas -->
   <%= form_with url: show_sets_pub_artist_artist_set_path(@artist_set.artist, @artist_set), method: :get, local: true do %>
     <%= label_tag :query, "Buscar música" %>
     <%= text_field_tag :query, params[:query] %>
-    <%= submit_tag "Buscar", 
-        role: "button" %>
-    <%= link_to "Mostrar todas", show_sets_pub_artist_artist_set_path(@artist_set.artist, @artist_set),
-        role: "button" %>
-    <%= link_to "Ordenar por nome", show_sets_pub_artist_artist_set_path(@artist_set.artist, @artist_set, order: "name"),
-        role: "button" %>
+    <%= submit_tag "Buscar", role: "button" %>
   <% end %>
-
-  <br>
 
   <% if @all_songs.present? %>
     <h3>
@@ -88,18 +98,16 @@
           end %>
     </h3>
     
-    <!-- Formulário para seleção múltipla -->
     <%= form_with url: adicionar_musicas_artist_artist_set_path(@artist_set.artist, @artist_set), 
         method: :post, local: true, id: "multiple-songs-form" do |form| %>
       
-      <!-- Botões de controle -->
       <div>
         <button type="button" id="select-all-btn" 
-                role: "button"; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Selecionar Todas</button>
+                style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Selecionar Todas</button>
         <button type="button" id="deselect-all-btn" 
-                role: "button"; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Desmarcar Todas</button>
+                style="background-color: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Desmarcar Todas</button>
         <button type="button" id="select-available-btn" 
-                role: "button"; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Selecionar Apenas Disponíveis</button>
+                style="background-color: #ffc107; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Selecionar Apenas Disponíveis</button>
         <%= form.submit "Inserir Músicas Selecionadas", 
             id: "submit-selected-btn", 
             style: "background-color: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
@@ -115,6 +123,7 @@
                 <input type="checkbox" id="select-all-checkbox" title="Selecionar/Desmarcar todas">
               </th>
               <th>Música</th>
+              <th>Banda</th>
               <th>Status</th>
               <th>Ação Individual</th>
             </tr>
@@ -122,6 +131,7 @@
           <tbody>
             <% @all_songs.each do |song| %>
               <% is_in_set = @songs.include?(song) %>
+              <% artist_song = @artist.artist_songs.find_by(song: song) %>
               <tr class="<%= 'already-in-set' if is_in_set %>">
                 <td>
                   <input type="checkbox" 
@@ -135,11 +145,12 @@
                 <td>
                   <span class="<%= 'text-muted' if is_in_set %>"><%= song.name %></span>
                 </td>
+                <td><%= song.band %></td>
                 <td>
-                  <% if is_in_set %>
-                    <span style="color: green; font-weight: bold;">Adicionada ao set</span>
+                  <% if artist_song %>
+                    <span style="color: blue;">🎤 No repertório</span>
                   <% else %>
-                    <span style="color: #666;">Disponível</span>
+                    <span style="color: orange;">➕ Será adicionada</span>
                   <% end %>
                 </td>
                 <td>
@@ -166,13 +177,15 @@
   <hr>
 
   <div>  
-    <%= button_to "Destroy this artist set", @artist_set, method: :delete,
+    <%= button_to "Deletar Setlist", 
+        artist_artist_set_path(@artist_set.artist, @artist_set), 
+        method: :delete,
         style: "background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
         confirm: "Tem certeza que deseja deletar este set?" %>
   </div>
 </div>
 
-<!-- JavaScript permanece o mesmo -->
+<!-- JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const selectAllBtn = document.getElementById('select-all-btn');

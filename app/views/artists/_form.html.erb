@@ -17,9 +17,16 @@
     <%= form.text_field :name, style: "width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" %>
   </div>
 
-  <div class="field" style="margin-bottom: 15px;">
-    <%= form.label :logo, style: "display: block; margin-bottom: 5px;" %>
-    <%= form.file_field :logo, style: "width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" %>
+  <!-- Campo para upload de logo -->
+  <div class="field">
+    <%= form.label :logo, "Logo do Artist" %>
+    <%= form.file_field :logo, accept: "image/*" %>
+    <% if artist.logo.attached? %>
+      <div style="margin-top: 10px;">
+        <%= image_tag artist.logo, width: 100 %>
+        <p><small>Logo atual</small></p>
+      </div>
+    <% end %>
   </div>
 
   <div style="margin-bottom: 15px;">

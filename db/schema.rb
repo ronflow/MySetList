@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_22_205414) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_31_123000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,11 +44,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_22_205414) do
 
   create_table "artist_set_songs", force: :cascade do |t|
     t.bigint "artist_set_id", null: false
-    t.bigint "song_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "artist_song_id", null: false
     t.index ["artist_set_id"], name: "index_artist_set_songs_on_artist_set_id"
-    t.index ["song_id"], name: "index_artist_set_songs_on_song_id"
+    t.index ["artist_song_id"], name: "index_artist_set_songs_on_artist_song_id"
   end
 
   create_table "artist_sets", force: :cascade do |t|
@@ -59,6 +59,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_22_205414) do
     t.index ["artist_id"], name: "index_artist_sets_on_artist_id"
   end
 
+  create_table "artist_songs", force: :cascade do |t|
+    t.bigint "artist_id", null: false
+    t.bigint "song_id", null: false
+    t.text "letra"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artist_id", "song_id"], name: "index_artist_songs_on_artist_id_and_song_id", unique: true
+    t.index ["artist_id"], name: "index_artist_songs_on_artist_id"
+    t.index ["song_id"], name: "index_artist_songs_on_song_id"
+  end
+
   create_table "artists", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -66,6 +77,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_22_205414) do
     t.bigint "user_id", null: false
     t.string "link1"
     t.string "link2"
+    t.string "link1_text"
+    t.string "link2_text"
+    t.text "social_message"
     t.index ["user_id"], name: "index_artists_on_user_id"
   end
 
@@ -119,6 +133,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_22_205414) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "band"
+    t.string "mbid"
+    t.string "isrc"
+    t.index ["isrc"], name: "index_songs_on_isrc"
+    t.index ["mbid"], name: "index_songs_on_mbid"
   end
 
   create_table "users", force: :cascade do |t|
@@ -133,8 +151,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_22_205414) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "artist_set_songs", "artist_sets"
-  add_foreign_key "artist_set_songs", "songs"
+  add_foreign_key "artist_set_songs", "artist_songs"
   add_foreign_key "artist_sets", "artists"
+  add_foreign_key "artist_songs", "artists"
+  add_foreign_key "artist_songs", "songs"
   add_foreign_key "artists", "users"
   add_foreign_key "event_sets", "artist_sets"
   add_foreign_key "event_sets", "events"

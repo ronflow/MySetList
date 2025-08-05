@@ -1,0 +1,256 @@
+<!-- app/views/artist_sets/show_set_web_pub.html.erb -->
+<div style="zoom: 75%;">
+  <p style="color: green"><%= notice %></p>
+  <p style="color: red"><%= alert %></p>
+
+  <div>
+    <h1>🌐 Buscar e Inserir da Web</h1>
+    <h2>Set: <%= @artist_set.set_list_name %> | Artist: <%= @artist.name %></h2>
+  </div>
+
+  <div>
+    <%= link_to "Voltar para Sets", artist_path(@artist), 
+        role: "button" %>
+  </div>
+
+  <hr>
+
+  <!-- PRIMEIRA TABELA: Músicas no Set -->
+  <h2>🎵 Músicas no Set (<%= @songs.count %>)</h2>
+
+  <!-- Formulário de busca para músicas do set -->
+  <%= form_with url: show_sets_pub_artist_artist_set_path(@artist_set.artist, @artist_set), method: :get, local: true do %>
+    <%= label_tag :search_set, "Buscar músicas no set" %>
+    <%= text_field_tag :search_set, params[:search_set] %>
+    <%= submit_tag "Buscar no Set", role: "button" %>
+  <% end %>
+
+  <br>
+  
+  <% if @songs.any? %>
+    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc;">
+      <table>
+        <thead>
+          <tr>
+            <th>Música</th>
+            <th>Banda</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @songs.each do |song| %>
+            <% artist_song = @artist.artist_songs.find_by(song: song) %>
+            <tr>
+              <td><strong><%= song.name %></strong></td>
+              <td><%= song.band %></td>
+              <td>
+                <% if artist_song %>
+                  <span style="color: green;">✅ No repertório</span>
+                  <% if artist_song.letra.present? %>
+                    <br><small style="color: #666;">Letra personalizada</small>
+                  <% end %>
+                <% else %>
+                  <span style="color: orange;">⚠️ Apenas no set</span>
+                <% end %>
+              </td>
+              <td>
+                <%= button_to "Remover do Set", remover_musicas_artist_artist_set_path(@artist_set.artist, @artist_set), 
+                    method: :delete, 
+                    params: { song_ids: [song.id] },
+                    style: "background-color: #dc3545; color: white; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;",
+                    confirm: "Remover '#{song.name}' do set?",
+                    local: true %>
+                    
+                <% if artist_song %>
+                  <%= link_to "Ver/Editar", artist_song_path(artist_song), 
+                      style: "background-color: #dc3545; color: white; padding: 4px 8px; text-decoration: none; border-radius: 4px; font-size: 12px; margin-left: 5px;" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p style="color: #666; font-style: italic;">Nenhuma música no set ainda.</p>
+  <% end %>
+
+  <hr>
+
+  <!-- BUSCA NO MUSICBRAINZ -->
+  <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h3>Buscar no MusicBrainz</h3>
+    
+    <%= form_with url: buscar_musicbrainz_artist_artist_set_path(@artist, @artist_set), 
+        method: :post, local: true do %>
+        
+        <!-- Campo de busca em linha separada -->
+        <%= text_field_tag :query, @search_query, 
+            placeholder: "Digite nome da música, artist, álbum...", 
+            style: "width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px;" %>
+        
+        <!-- Botão abaixo do campo -->
+        <%= submit_tag "🔍 Buscar no MusicBrainz", 
+            style: "background-color: #dc3545; color: white; padding: 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%;" %>
+      </div>
+      
+      <small style="color: #666; display: block;">
+        💡 Busque por música, artist, álbum ou qualquer termo relacionado
+      </small>
+    <% end %>
+  </div>
+
+  <!-- RESULTADOS DO MUSICBRAINZ -->
+  <% if @musicbrainz_results.any? %>
+    <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h3>🎵 Resultados do MusicBrainz (<%= @musicbrainz_results.count %>)</h3>
+      
+      <%= form_with url: adicionar_musicas_web_artist_artist_set_path(@artist, @artist_set), 
+          method: :post, local: true, id: "musicbrainz-form" do |form| %>
+        
+        <div style="margin-bottom: 15px;">
+          <button type="button" id="select-all-mb-btn" 
+                  style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Selecionar Todas</button>
+          <button type="button" id="deselect-all-mb-btn" 
+                  style="background-color: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Desmarcar Todas</button>
+          <%= form.submit "➕ Adicionar Selecionadas ao Set", 
+              id: "submit-mb-btn", 
+              style: "background-color: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
+              confirm: "Adicionar músicas selecionadas do MusicBrainz?" %>
+          <span id="mb-selected-count" style="margin-left: 10px; font-weight: bold; color: #007bff;">0 selecionadas</span>
+        </div>
+
+        <div style="max-height: 500px; overflow-y: auto; border: 1px solid #ccc;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;">
+                  <input type="checkbox" id="select-all-mb-checkbox" title="Selecionar/Desmarcar todas">
+                </th>
+                <th>Música</th>
+                <th>Artist</th>
+                <th>Álbum</th>
+                <th>Ano</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @musicbrainz_results.each_with_index do |result, index| %>
+                <% existing_song = Song.find_by(name: result['title'], band: result['artist']) %>
+                <% is_in_set = existing_song && @songs.include?(existing_song) %>
+                <% artist_song = existing_song ? @artist.artist_songs.find_by(song: existing_song) : nil %>
+                
+                <tr class="<%= 'already-exists' if existing_song %>">
+                  <td>
+                    <input type="checkbox" 
+                           name="selected_songs[]" 
+                           value="<%= result.to_json %>" 
+                           class="mb-song-checkbox <%= 'available-mb-song' unless is_in_set %>"
+                           data-song-name="<%= result['title'] %>"
+                           data-in-set="<%= is_in_set %>"
+                           <%= 'disabled' if is_in_set %>>
+                  </td>
+                  <td>
+                    <strong><%= result['title'] %></strong>
+                    <% if result['duration'] %>
+                      <br><small style="color: #666;">⏱️ <%= result['duration'] %></small>
+                    <% end %>
+                  </td>
+                  <td><%= result['artist'] %></td>
+                  <td><%= result['album'] %></td>
+                  <td><%= result['year'] %></td>  
+                  <td>
+                    <% if is_in_set %>
+                      <span style="color: green; font-weight: bold;">✅ No set</span>
+                    <% elsif existing_song %>
+                      <span style="color: blue;">💿 Existe</span>
+                    <% else %>
+                      <span style="color: orange;">🆕 Nova</span>
+                    <% end %>
+                    
+                    <% if artist_song %>
+                      <br><span style="color: purple; font-size: 12px;">🎤 No repertório</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <hr>
+
+  <div>  
+    <%= button_to "Deletar Setlist", 
+        artist_artist_set_path(@artist_set.artist, @artist_set), 
+        method: :delete,
+        style: "background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
+        confirm: "Tem certeza que deseja deletar este set?" %>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Botões de controle do MusicBrainz
+  const selectAllMbBtn = document.getElementById('select-all-mb-btn');
+  const deselectAllMbBtn = document.getElementById('deselect-all-mb-btn');
+  const selectAllMbCheckbox = document.getElementById('select-all-mb-checkbox');
+  const mbSelectedCountSpan = document.getElementById('mb-selected-count');
+  const submitMbBtn = document.getElementById('submit-mb-btn');
+  
+  const mbSongCheckboxes = document.querySelectorAll('.mb-song-checkbox');
+  const availableMbSongCheckboxes = document.querySelectorAll('.mb-song-checkbox.available-mb-song');
+
+  function updateMbSelectedCount() {
+    const checkedBoxes = document.querySelectorAll('.mb-song-checkbox:checked');
+    const count = checkedBoxes.length;
+    mbSelectedCountSpan.textContent = `${count} selecionada${count !== 1 ? 's' : ''}`;
+    
+    if (submitMbBtn) {
+      submitMbBtn.disabled = count === 0;
+      submitMbBtn.style.opacity = count === 0 ? '0.5' : '1';
+    }
+  }
+
+  mbSongCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateMbSelectedCount);
+  });
+
+  if (selectAllMbBtn) {
+    selectAllMbBtn.addEventListener('click', function() {
+      mbSongCheckboxes.forEach(checkbox => {
+        if (!checkbox.disabled) {
+          checkbox.checked = true;
+        }
+      });
+      updateMbSelectedCount();
+    });
+  }
+
+  if (deselectAllMbBtn) {
+    deselectAllMbBtn.addEventListener('click', function() {
+      mbSongCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      updateMbSelectedCount();
+    });
+  }
+
+  if (selectAllMbCheckbox) {
+    selectAllMbCheckbox.addEventListener('change', function() {
+      const isChecked = this.checked;
+      availableMbSongCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+      });
+      updateMbSelectedCount();
+    });
+  }
+
+  updateMbSelectedCount();
+});
+</script>

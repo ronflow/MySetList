@@ -1,14 +1,65 @@
-<% content_for :title, "Editing artist" %>
+<!-- app/views/artists/edit.html.erb -->
+<h1>Editando Artist</h1>
 
-<h1>Editing artist</h1>
+<%= form_with(model: @artist, local: true) do |form| %>
+  <% if @artist.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@artist.errors.count, "error") %> prohibited this artist from being saved:</h2>
+      <ul>
+        <% @artist.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 
-<%= render "form", artist: @artist %>
+  <!-- Logo do Artist -->
+  <div style="margin-right: 20px;">
+    <% if @artist.logo.present? %>
+      <%= image_tag @artist.logo, 
+          alt: "Logo de #{@artist.name}", 
+          style: "width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" %>
+    <% else %>
+      <div style="width: 80px; height: 80px; background-color: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+        <span style="font-size: 12px; text-align: center;">Sem<br>Logo</span>
+      </div>
+    <% end %>
+  </div>
 
-<br>
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
 
-<div>
-  <%= link_to "Back to artists", artists_path,
-  role: "button" %>
-  <%= link_to "Show this artist", @artist,
-  role: "button" %>
-</div>
+  <!-- Links das redes sociais -->
+  <div class="field">
+    <%= form.label :link1, "Link da Rede Social 1" %>
+    <%= form.url_field :link1, placeholder: "https://wa.me/5511999999999" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :link1_text, "Texto do Botão 1" %>
+    <%= form.text_field :link1_text, placeholder: "WhatsApp" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :link2, "Link da Rede Social 2" %>
+    <%= form.url_field :link2, placeholder: "https://instagram.com/usuario" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :link2_text, "Texto do Botão 2" %>
+    <%= form.text_field :link2_text, placeholder: "Instagram" %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= link_to "Voltar para Artista", artists_path,
+    role: "button" %>
+    <%= link_to "Mostrar Artista", @artist,
+    role: "button" %>
+  </div>

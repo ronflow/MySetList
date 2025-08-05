@@ -3,42 +3,51 @@
 
 <div style="zoom: 75%;">
 
-  <% content_for :title, "Events" %>
+  <h1><%= @page_title || "Eventos" %></h1>
 
-  <h1>Events</h1>
+  <% if @artist.present? %>
+    <p style="color: #666; margin-bottom: 20px;">
+      Mostrando eventos de <strong><%= @artist.name %></strong>
+    </p>
 
-  <div id="events">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artist</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% @events.each do |event| %>
+    <div id="events">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
           <tr>
-            <td class="px-6 py-4 whitespace-nowrap"><%= event.event_date %></td>
-            <td class="px-6 py-4"><%= event.artist&.name %></td>
-            <td class="px-6 py-4"><%= event.description %></td>
-            <td class="px-6 py-4">
-              <%= link_to "Show this event", event, 
-                  role: "button" %>
-            </td>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artista</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @events.each do |event| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap"><%= event.event_date %></td>
+              <td class="px-6 py-4"><%= event.artist&.name %></td>
+              <td class="px-6 py-4"><%= event.description %></td>
+              <td class="px-6 py-4">
+                <%= link_to "Mostrar Evento", event, 
+                    role: "button" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
 
-  <%= link_to "New event", new_event_path, 
-      role: "button" %>
+    <%= link_to "Novo Evento", new_event_path, 
+        role: "button" %>
+
+    <hr>
+    
+    <%= link_to "Voltar para Artista", artists_path, 
+        role: "button" %>
+    <br>
+  <% end %>
 
   <hr>
 
-  <%= link_to "Voltar para o Admin", admin_root_path, 
+  <%= link_to "Voltar para Admin", admin_root_path, 
       role: "button" %>
-
 </div>

@@ -12,7 +12,7 @@
   <% end %>
 
   <div>
-    <%= form.label :event_date, style: "display: block" %>
+    <%= form.label :Data_do_Evento, style: "display: block" %>
     <%= form.date_field :event_date %>
   </div>
 
@@ -24,7 +24,7 @@
   %>
 
   <div>
-    <%= form.label :artist_id, "Artist", style: "display: block" %>
+    <%= form.label :artist_id, "Artista", style: "display: block" %>
     <% if user_artists.any? %>
       <%= form.collection_select :artist_id, user_artists, :id, :name, 
           { selected: selected_artist_id }, 
@@ -41,7 +41,7 @@
   <br>
 
   <div data-artist-sets-container>
-    <%= form.label :artist_set_ids, "Sets do Artist (opcional)", style: "display: block" %>
+    <%= form.label :artist_set_ids, "Sets do Artista (opcional)", style: "display: block" %>
     <div class="artist-sets-checkboxes" id="artist-sets-checkboxes">
       <!-- Sets serão carregados dinamicamente aqui -->
     </div>
@@ -55,8 +55,10 @@
     <% end %>
   </div>
 
+  <br>
+
   <div>
-    <%= form.label :description, style: "display: block" %>
+    <%= form.label :Descrição, style: "display: block" %>
     <%= form.text_field :description %>
   </div>
 
