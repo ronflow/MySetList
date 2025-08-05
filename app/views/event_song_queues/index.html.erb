@@ -15,6 +15,7 @@
           <th>Posição</th>
           <th>Música</th>
           <th>Artista</th> <!-- esse campo foi renomeado de "Performer" para "Artista"  e não tem relação com o artist pagante -->
+          <th>Letra</th>
         </tr>
       </thead>
       <tbody>
@@ -33,6 +34,14 @@
                 <span style="color: #666;">Nome não informado</span>
               <% end %>
             </td>
+            <td>
+              <% artist_song = ArtistSong.find_by(artist_id: @event.artist_id, song_id: queue.song_id) %>
+              <% if artist_song&.letra.present? %>
+                <%= link_to "Ver Letra", lyrics_artist_song_path(artist_song), class: "button", target: "_blank" %>
+              <% else %>
+                <span style="color: #aaa;">Sem Letra</span>
+              <% end %>
+            </td>            
           </tr>
         <% end %>
       </tbody>

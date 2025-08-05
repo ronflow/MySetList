@@ -57,6 +57,10 @@ class ArtistSongsController < ApplicationController
     end
   end
 
+  def lyrics
+    @artist_song = ArtistSong.find(params[:id])
+  end
+  
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_artist_song

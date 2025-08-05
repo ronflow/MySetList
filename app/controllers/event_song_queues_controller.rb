@@ -39,6 +39,14 @@ class EventSongQueuesController < ApplicationController
     end
   end
 
+  def reorder
+    params[:order].each_with_index do |id, index|
+      queue = EventSongQueue.find(id)
+      queue.update(position: index + 1)
+    end
+    head :ok
+  end
+
   private
 
   def set_event
