@@ -1,4 +1,5 @@
 # app/controllers/events_controller.rb
+
 class EventsController < ApplicationController
   before_action :set_event, only: %i[ show edit update destroy showpublico ]
 
