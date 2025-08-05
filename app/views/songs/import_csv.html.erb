@@ -1,0 +1,15 @@
+<!-- filepath: c:\DEV\MySetList\app\views\songs\import_csv.html.erb -->
+<h1>Importar Músicas</h1>
+
+<%= form_with url: process_csv_songs_path, local: true, multipart: true do |form| %>
+  <div>
+    <%= form.label :csv_file, "Selecione o arquivo CSV:" %>
+    <%= form.file_field :csv_file, required: true %>
+  </div>
+  <br>
+  <%= form.submit "Enviar CSV" %>
+<% end %>
+
+<% if flash[:alert] %>
+  <div style="color: red;"><%= flash[:alert] %></div>
+<% end %>

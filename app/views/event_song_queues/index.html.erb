@@ -1,24 +1,57 @@
 <!-- app/views/event_song_queues/index.html.erb -->
-<h2><%= @event.description %></h2>
+<div style="zoom: 75%;">
+  <h2>Fila de Músicas - <%= @event.description %></h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Música</th>
-      <th>Artista</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @queues.where(hidden: [false, nil]).order(:position).each do |queue| %>
-      <tr>
-        <td><%= queue.song.name %></td>
-        <td><%= queue.performer.name %></td>
-        <td>
-          <%= link_to "Ver Letra Musica", lyrics_song_path(queue.song), class: "button" %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+  <div style="margin-bottom: 20px;">
+    <%= link_to "Voltar para Evento", 
+        showpublico_event_path(@event), 
+        role: "button" %>
+  </div>
 
+  <% if @visible_queues.any? %>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Posição</th>
+          <th>Música</th>
+          <th>Artista</th> <!-- esse campo foi renomeado de "Performer" para "Artista"  e não tem relação com o artist pagante -->
+          <th>Letra</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @visible_queues.each do |queue| %>
+          <tr>
+            <td>
+              <%= queue.position %>
+            </td>
+            <td>
+              <strong><%= queue.song.name %></strong>
+            </td>
+            <td>
+              <% if queue.performer_id.present? %>
+                <%= Performer.find_by(id: queue.performer_id)&.name || "Performer ##{queue.performer_id}" %>
+              <% else %>
+                <span style="color: #666;">Nome não informado</span>
+              <% end %>
+            </td>
+            <td>
+              <% artist_song = ArtistSong.find_by(artist_id: @event.artist_id, song_id: queue.song_id) %>
+              <% if artist_song&.letra.present? %>
+                <%= link_to "Ver Letra", lyrics_artist_song_path(artist_song), class: "button", target: "_blank" %>
+              <% else %>
+                <span style="color: #aaa;">Sem Letra</span>
+              <% end %>
+            </td>            
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="background: #f0f8ff; padding: 30px; border-radius: 8px; text-align: center; margin: 20px 0;">
+      <h3>🎵 Fila está vazia</h3>
+      <p>Nenhuma música foi adicionada à fila ainda.</p>
+      <%= link_to "🎤 Adicionar primeira música", showpublico_event_path(@event), 
+          role: "button" %>
+    </div>
+  <% end %>
+</div>

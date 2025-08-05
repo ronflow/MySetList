@@ -10,9 +10,9 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "pico.classless.min", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "mysetlist_custom", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "application" %>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   </head>
-
   <body>
     <%= yield %>
   </body>

@@ -6,4 +6,8 @@ class User < ApplicationRecord
     validates :email_address, presence: true, uniqueness: true
     validates :name, presence: true
 
+    def admin?
+        admin == true
+    end
+
 end

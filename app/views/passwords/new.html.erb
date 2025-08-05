@@ -1,0 +1,12 @@
+<h1>Recuperar senha</h1>
+
+<%= form_with url: passwords_path, method: :post, local: true do |form| %>
+  <div>
+    <%= form.label :email_address, "Digite seu e-mail cadastrado:" %><br>
+    <%= form.email_field :email_address, required: true, autofocus: true %>
+  </div>
+  <br>
+  <div>
+    <%= form.submit "Enviar instruções de recuperação" %>
+  </div>
+<% end %>
