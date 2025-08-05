@@ -62,7 +62,8 @@ Rails.application.routes.draw do
   # =========================
   # RELACIONAMENTO ARTIST-SONG
   # =========================
-  resources :artist_songs, only: [] do
+  resources :artist_songs, only: [:index, :show, :edit, :update] do
+
     member do
       get :lyrics
     end
@@ -71,8 +72,8 @@ Rails.application.routes.draw do
   # ARTISTS E SETS (PRINCIPAL)
   # =========================
   resources :artists do
-    # Songs do artist
-    resources :songs, only: [:index, :show]
+    # Songs do artist NAO TEM MAIS RELACIONAMENTO
+    # resources :songs, only: [:index, :show]
     
     # Sets do artist
     resources :artist_sets do
