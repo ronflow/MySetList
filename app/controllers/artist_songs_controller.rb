@@ -1,6 +1,8 @@
 class ArtistSongsController < ApplicationController
   before_action :set_artist_song, only: %i[ show edit update destroy ]
 
+  skip_before_action :authenticate_user!, only: [:lyrics]
+
   # GET /artist_songs or /artist_songs.json
   def index
     @artist_songs = ArtistSong.all
@@ -57,6 +59,10 @@ class ArtistSongsController < ApplicationController
     end
   end
 
+  def lyrics
+    @artist_song = ArtistSong.find(params[:id])
+  end
+  
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_artist_song

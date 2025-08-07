@@ -1,10 +1,11 @@
 <p style="color: green"><%= notice %></p>
-
-<%= render @artist_song %>
-
 <div>
   <%= link_to "Edit this artist song", edit_artist_song_path(@artist_song) %> |
-  <%= link_to "Back to artist songs", artist_songs_path %>
+   <%= link_to "Voltar para o artista", artist_path(@artist_song.artist) %>
+</div>
+<p><strong>Letra:</strong></p>
+<%= simple_format(@artist_song.letra) %>
 
+<div>
   <%= button_to "Destroy this artist song", @artist_song, method: :delete %>
 </div>

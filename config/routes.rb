@@ -34,6 +34,9 @@ Rails.application.routes.draw do
       member do
         patch :hide
       end
+      collection do
+        post :reorder
+      end
     end
     resources :event_sets
   end
@@ -59,14 +62,18 @@ Rails.application.routes.draw do
   # =========================
   # RELACIONAMENTO ARTIST-SONG
   # =========================
-  resources :artist_songs
-  
+  resources :artist_songs, only: [:index, :show, :edit, :update] do
+
+    member do
+      get :lyrics
+    end
+  end
   # =========================
   # ARTISTS E SETS (PRINCIPAL)
   # =========================
   resources :artists do
-    # Songs do artist
-    resources :songs, only: [:index, :show]
+    # Songs do artist NAO TEM MAIS RELACIONAMENTO
+    # resources :songs, only: [:index, :show]
     
     # Sets do artist
     resources :artist_sets do
