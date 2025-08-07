@@ -15,7 +15,7 @@
 
   <!-- Logo do Artist -->
   <div style="margin-right: 20px;">
-    <% if @artist.logo.present? %>
+    <% if @artist.logo.attached? %>
       <%= image_tag @artist.logo, 
           alt: "Logo de #{@artist.name}", 
           style: "width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" %>
@@ -24,6 +24,10 @@
         <span style="font-size: 12px; text-align: center;">Sem<br>Logo</span>
       </div>
     <% end %>
+    <div class="field">
+      <%= form.label :logo, "Alterar logo" %>
+      <%= form.file_field :logo %>
+    </div>
   </div>
 
   <div class="field">

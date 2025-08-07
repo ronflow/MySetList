@@ -1,8 +1,6 @@
 <!-- app/views/events/index.html.erb -->
 <p style="color: green"><%= notice %></p>
 
-<div style="zoom: 75%;">
-
   <h1><%= @page_title || "Eventos" %></h1>
 
   <% if @artist.present? %>
@@ -50,4 +48,3 @@
 
   <%= link_to "Voltar para Admin", admin_root_path, 
       role: "button" %>
-</div>
