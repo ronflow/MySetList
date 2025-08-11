@@ -22,4 +22,10 @@ class Song < ApplicationRecord
     with: /\A[A-Z]{2}[A-Z0-9]{3}[0-9]{7}\z/,
     message: "deve ter formato válido (ex: USUM71703861)"
   }, allow_blank: true
+
+  # Método para obter a letra da música para um artista específico
+  def letra_for_artist(artist)
+    artist_song = artist.artist_songs.find_by(song: self)
+    artist_song&.letra || self.original_lyrics || "Letra não disponível"
+  end
 end
