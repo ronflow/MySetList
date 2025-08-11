@@ -63,9 +63,10 @@ Rails.application.routes.draw do
   # RELACIONAMENTO ARTIST-SONG
   # =========================
   resources :artist_songs, only: [:index, :show, :edit, :update] do
-
     member do
       get :lyrics
+      get :edit_lyrics
+      patch :update_lyrics
     end
   end
   # =========================

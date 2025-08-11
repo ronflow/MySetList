@@ -9,7 +9,7 @@
 
   <div>
     <%= link_to "Voltar para Sets", artist_path(@artist_set.artist), 
-        role: "button" %>
+      role: "button" %>
   </div>
 
   <hr>
@@ -62,7 +62,11 @@
                     local: true %>
                     
                 <% if artist_song %>
-                  <%= link_to "Ver/Editar", artist_song_path(artist_song), 
+                  <%= link_to "Ver Letra", artist_song_path(artist_song), 
+                      style: "background-color: #0056b3; color: white; padding: 4px 8px; text-decoration: none; border-radius: 4px; font-size: 12px; margin-left: 5px;" %>
+                <% end %>
+                <% if artist_song %>
+                  <%= link_to "Editar Letra", edit_lyrics_artist_song_path(artist_song), 
                       style: "background-color: #28a745; color: white; padding: 4px 8px; text-decoration: none; border-radius: 4px; font-size: 12px; margin-left: 5px;" %>
                 <% end %>
               </td>
