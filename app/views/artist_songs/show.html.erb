@@ -1,11 +1,15 @@
 <p style="color: green"><%= notice %></p>
 <div>
-  <%= link_to "Edit this artist song", edit_artist_song_path(@artist_song) %> |
-   <%= link_to "Voltar para o artista", artist_path(@artist_song.artist) %>
-</div>
+  <!-- %= link_to "Edit this artist song", edit_artist_song_path(@artist_song) % --> 
+   <%= link_to "Voltar para o artista", artist_path(@artist_song.artist),
+    role: "button" %>
+</div>  
+
+<br>
+
 <p><strong>Letra:</strong></p>
 <%= simple_format(@artist_song.letra) %>
 
 <div>
-  <%= button_to "Destroy this artist song", @artist_song, method: :delete %>
+  <!-- %= button_to "Destroy this artist song", @artist_song, method: :delete % -->
 </div>
