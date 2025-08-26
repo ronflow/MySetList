@@ -13,7 +13,8 @@
     </div>
   <% end %>
 
-  <!-- Logo do Artist -->
+  <!-- 📦 SEÇÃO DE MÍDIA -->
+  <!-- 🖼️ Logo do Artist -->
   <div style="margin-right: 20px;">
     <% if @artist.logo.attached? %>
       <%= image_tag @artist.logo, 
@@ -30,11 +31,38 @@
     </div>
   </div>
 
+  <!-- 🎬 VÍDEO DO ARTIST -->
+  <div style="flex: 1; min-width: 250px;">
+    <h3 style="margin-bottom: 15px; color: #333;">🎥 Vídeo do Artista</h3>
+    
+    <% if @artist.video.attached? %>
+      <div style="margin-bottom: 10px;">
+        <%= video_tag @artist.video, 
+            controls: true,
+            style: "width: 200px; height: 120px; border-radius: 8px; border: 2px solid #ddd;",
+            poster: (@artist.logo.attached? ? url_for(@artist.logo) : nil) %>
+      </div>
+      <p style="color: #28a745; font-size: 14px;">✅ Vídeo atual carregado</p>
+    <% else %>
+      <div style="width: 200px; height: 120px; background-color: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d; margin-bottom: 10px;">
+        <span style="font-size: 14px; text-align: center;">🎬<br>Sem Vídeo</span>
+      </div>
+    <% end %>
+    
+    <div class="field">
+      <%= form.label :video, "Alterar/Adicionar Vídeo" %>
+      <%= form.file_field :video, accept: "video/*" %>
+      <small style="color: #666;">Formatos aceitos: MP4, AVI, MOV, WMV</small>
+    </div>
+  </div>
+
+  <!-- 📝 INFORMAÇÕES BÁSICAS -->
   <div class="field">
     <%= form.label :name %>
     <%= form.text_field :name %>
   </div>
 
+  <!-- 🌐 REDES SOCIAIS -->
   <!-- Links das redes sociais -->
   <div class="field">
     <%= form.label :link1, "Link da Rede Social 1" %>
@@ -56,11 +84,13 @@
     <%= form.text_field :link2_text, placeholder: "Instagram" %>
   </div>
 
+  <!-- 🎯 AÇÕES -->
   <div class="actions">
     <%= form.submit %>
     </div>
   <% end %>
 
+  <!-- 🔙 NAVEGAÇÃO -->
   <div>
     <%= link_to "Voltar para Artista", artists_path,
     role: "button" %>

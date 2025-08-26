@@ -22,7 +22,7 @@
       <div>
         <h2 style="margin: 0 0 10px 0;"><%= artist.name %></h2>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <%= link_to "Ver artista", artist_path(artist), 
+          <%= link_to "Ver Sets e Músicas", artist_path(artist), 
               role: "button" %>
 
           <%= link_to "Editar Artista", edit_artist_path(artist), 
@@ -37,9 +37,6 @@
     </div>
     <hr>
   <% end %>
-
-  <!-- No topo da página de sets do artista -->
-  <%= link_to "Importar Músicas", import_csv_songs_path, class: "btn btn-success" %>
 
   <% if current_user && current_user.artists.empty? %>
     <%= link_to "Novo Artista", new_artist_path, role: "button" %>

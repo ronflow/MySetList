@@ -3,7 +3,6 @@
   <% if artist.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(artist.errors.count, "error") %> prohibited this artist from being saved:</h2>
-
       <ul>
         <% artist.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -27,6 +26,12 @@
         <p><small>Logo atual</small></p>
       </div>
     <% end %>
+  </div>
+
+  <!-- Campo para upload de vídeo -->
+  <div class="field">
+    <%= form.label :video, "Vídeo" %>
+    <%= form.file_field :video, accept: "video/*" %>
   </div>
 
   <div style="margin-bottom: 15px;">

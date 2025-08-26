@@ -13,3 +13,10 @@
 <% if flash[:alert] %>
   <div style="color: red;"><%= flash[:alert] %></div>
 <% end %>
+
+<hr>
+
+<div>
+  <%= link_to "Voltar para Artista", artists_path(@artist), 
+      role: "button" %>
+</div>

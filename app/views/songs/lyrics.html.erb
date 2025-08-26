@@ -14,39 +14,32 @@
     });
 </script>
 
+  <style>
+  .lyrics-container {
+    font-family: 'Courier New', 'Courier', monospace;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+  
+  .lyrics-preview {
+    font-family: 'Courier New', 'Courier', monospace;
+    white-space: pre-wrap;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 0.9em;
+  }
+</style>
 
-
-<!-- app/views/songs/lyrics.html.erb -->
-  <head>
-    <title>Lyrics</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        height: 100vh;
-        /* background-color: #f9f9f9; */
-      }
-      .lyrics-container {
-        width: 90%;
-        height: 90%;
-        overflow: auto;
-        text-align: left; /* Align text to the left */
-        font-size: 0.8rem;
-        line-height: 1.0;
-        resize: both;
-        font-family: "Courier New", Courier, monospace; /* Fixed-length font */
-       /*  color: black;  Black text color */
-        margin-top: 2rem; /* Added to give some top spacing */
-
-      }
-    </style>
-  </head>
-  <body>
-    <div class="lyrics-container">
-      <%= simple_format(@song.lyrics) %>
-    </div>
-  </body>
-</html>
+<div class="lyrics-container">
+  <%= simple_format(@song.lyrics) %>
+</div>
