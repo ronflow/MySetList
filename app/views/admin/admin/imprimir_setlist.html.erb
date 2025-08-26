@@ -1,0 +1,16 @@
+<!-- filepath: c:\DEV\MySetList\app\views\admin\admin\imprimir_setlist.html.erb -->
+
+<h2>Pré-visualização do Setlist para Impressão</h2>
+
+<div style="margin-top: 30px;">
+  <!-- ✅ CORRIGIDO: Rota específica para imagem JPG do PDF -->
+  <img src="<%= admin_preview_pdf_path(event_id: @event.id) %>" 
+       alt="Prévia do Setlist" 
+       style="max-width:100%; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
+  <br>
+  <br>
+  <%= button_to "Baixar PDF", admin_download_pdf_path(event_id: @event.id), method: :get, class: "btn btn-primary" %>
+  <br>
+  <%= link_to "Voltar para fila", admin_show_queue_path(event_id: @event.id), class: "btn btn-secondary", style: "margin-left: 10px;",
+    role: "button" %>
+</div>

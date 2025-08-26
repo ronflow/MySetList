@@ -19,10 +19,10 @@ class WelcomeController < ApplicationController
       @artist = Artist.where("name ILIKE ?", "%Flowerz%").first
     end
 
-    # Filtrar eventos - VERSÃO MAIS DEFENSIVA
+    # Filtrar eventos
     if @artist
       # Buscar events do artist, incluindo eventos futuros e de hoje
-      @events = @artist.events.where("event_date >= ?", Date.current).order(:event_date)
+      @events = @artist.events.where("event_date >= ?", Date.current - 1.day).order(:event_date)
       
       # Se não houver events futuros, mostrar todos os events do artist
       if @events.empty?

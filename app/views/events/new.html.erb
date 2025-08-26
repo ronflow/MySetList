@@ -1,17 +1,14 @@
 <!-- app/views/events/new.html.erb -->
 <% content_for :title, "New event" %>
 
-<div style="zoom: 75%;">
+<h1>Novo Evento</h1>
 
-  <h1>Novo Evento</h1>
+<%= render "form", event: @event %>
 
-  <%= render "form", event: @event %>
+<br>
 
-  <br>
-
-  <div>
-    <%= link_to "Voltar para Eventos", events_path, 
-        role: "button" %>
-  </div>
-
+<div>
+  <%= link_to "Voltar para Eventos", events_path, 
+      role: "button" %>
 </div>
+
