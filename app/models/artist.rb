@@ -4,6 +4,7 @@ class Artist < ApplicationRecord
 
   # Active Storage para logo
   has_one_attached :logo
+  has_one_attached :video   # ✅ NOVO: Vídeo do artista
   
   # Relacionamentos com songs
   has_many :artist_songs, dependent: :destroy

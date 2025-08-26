@@ -1,71 +1,192 @@
 <!-- app/views/welcome/index.html.erb -->
-<div style="zoom: 75%;">
+<table>
+  <tr>
+    <td>
+      <h1>MySetList</h1>
+      <h3>Gerenciador de músicas e Fila de Artistas</h3>
+      <h9>by: Stage Invaders</h9>
+    </td>
+    <td>
+      <% if @artist&.logo&.attached? %>
+        <%= image_tag @artist.logo, width: 100 %>
+      <% end %>
+    </td>
+  </tr>
+</table>
 
-  <table>
-    <tr>
-      <td>
-        <h1>MySetList</h1>
-        <h3>Gerenciador de músicas e Fila de Artistas</h3>
-        <h9>by: Stage Invaders</h9>
-      </td>
-      <td>
-        <% if @artist&.logo&.attached? %>
-          <%= image_tag @artist.logo, width: 100 %>
-        <% end %>
-      </td>
-    </tr>
-  </table>
-
-  <!-- Seção de redes sociais fixa - ALINHADA À ESQUERDA -->
-  <div style="margin: 20px 0; padding: 15px 0;">
-    <% if @artist.present? %>
-      <p style="font-size: 20px; color: white; margin-bottom: 10px;">
-        📱 <strong>Siga <%= @artist.name %>:</strong>
-      </p>
+<table>
+  <tr>
+    <td>
+      <h8>Instruções: </h8> 
+      <h8>Selecione um Evento; de lá escolha a Música; preencha seu nome artístico, e selecione adicionar a fila</h8>
+      <br>
+      <br>
       
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <% if @artist.link1.present? %>
-          <%= link_to (@artist.link1_text.presence || "WhatsApp"), 
-              @artist.link1, target: "_blank", role: "button" %>
-        <% end %>
-        
-        <% if @artist.link2.present? %>
-          <%= link_to (@artist.link2_text.presence || "Instagram"), 
-              @artist.link2, target: "_blank", role: "button" %>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
-  <table>
-    <tr>
-      <td>
-        <h8>Instruções: </h8> 
-        <h8>Selecione um Evento; de lá escolha a Música; preencha seu nome artístico, e selecione adicionar a fila</h8>
-        <br>
-        <br>
-        
-        <% if @artist %>
-          <h4>Eventos de <%= @artist.name %>:</h4>
-        <% end %>
-        
-        <ul>
-          <% if @events.any? %>
-            <% @events.each do |event| %>
-              <li>
-                <%= link_to "#{event.event_date} - #{event.description}", 
-                    showpublico_event_path(event, artist_name: @artist&.name) %>
-                <small style="color: #666;">(Artista: <%= event.artist&.name || "Não informado" %>)</small>
-              </li>
-            <% end %>
-          <% else %>
-            <li style="color: gray; font-style: italic;">
-              <%= @artist ? "Nenhum evento encontrado para #{@artist.name}" : "Nenhum evento disponível" %>
+      <% if @artist %>
+        <h4>Eventos de <%= @artist.name %>:</h4>
+      <% end %>
+      
+      <ul>
+        <% if @events.any? %>
+          <% @events.each do |event| %>
+            <li>
+              <%= link_to "#{event.event_date} - #{event.description}", 
+                  showpublico_event_path(event, artist_name: @artist&.name) %>
+              <small style="color: #666;">(Artista: <%= event.artist&.name || "Não informado" %>)</small>
             </li>
           <% end %>
-        </ul>
-      </td>
-    </tr>
-  </table>
+        <% else %>
+          <li style="color: gray; font-style: italic;">
+            <%= @artist ? "Nenhum evento encontrado para #{@artist.name}" : "Nenhum evento disponível" %>
+          </li>
+        <% end %>
+      </ul>
+    </td>
+  </tr>
+</table>
 
-</div>
+<!-- 🎬 SEÇÃO DE VÍDEO VERTICAL -->
+<% if @artist&.video&.attached? %>
+    <div id="video-container" style="position: relative; width: 100%; max-width: 900px; margin: 0 auto;">
+      <%= video_tag @artist.video, 
+          id: "artist-video",
+          controls: true,
+          autoplay: true,
+          muted: true,
+          loop: true,
+          preload: "metadata",
+          style: "width: 100%; height: auto; min-height: 400px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);",
+          poster: (@artist.logo.attached? ? url_for(@artist.logo) : nil) %>
+      
+      <!-- 📱 OVERLAY DOS BOTÕES DE REDES SOCIAIS -->
+      <% if @artist.present? %>
+        <div id="social-overlay" style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          padding: 30px;
+          border-radius: 15px;
+          text-align: center;
+          display: none;
+          z-index: 10;
+          backdrop-filter: blur(3px);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        ">
+          <p style="font-size: 24px; color: white; margin-bottom: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+            📱 Siga <%= @artist.name %>:
+          </p>
+          
+          <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+            <% if @artist.link1.present? %>
+              <%= link_to (@artist.link1_text.presence || "WhatsApp"), 
+                  @artist.link1, 
+                  target: "_blank", 
+                  role: "button",
+                  style: "
+                    background: #25D366;
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    transition: all 0.3s ease;
+                    min-width: 140px;
+                    text-align: center;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+                  ",
+                  onmouseover: "this.style.transform='scale(1.05)'",
+                  onmouseout: "this.style.transform='scale(1)'" %>
+            <% end %>
+            
+            <% if @artist.link2.present? %>
+              <%= link_to (@artist.link2_text.presence || "Instagram"), 
+                  @artist.link2, 
+                  target: "_blank", 
+                  role: "button",
+                  style: "
+                    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    transition: all 0.3s ease;
+                    min-width: 140px;
+                    text-align: center;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+                  ",
+                  onmouseover: "this.style.transform='scale(1.05)'",
+                  onmouseout: "this.style.transform='scale(1)'" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <p id="video-status" style="text-align: center; color: #ccc; margin-top: 10px; font-size: 14px;">
+      🔊 Vídeo reproduzindo automaticamente
+    </p>
+
+    <!-- 📜 JAVASCRIPT PARA CONTROLAR O OVERLAY -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('artist-video');
+        const overlay = document.getElementById('social-overlay');
+        const status = document.getElementById('video-status');
+        let overlayShown = false; // Flag para controlar se já mostrou o overlay
+        
+        // Função para mostrar overlay após 2 segundos de reprodução
+        video.addEventListener('timeupdate', function() {
+          if (video.currentTime >= 2 && !overlayShown) {
+            overlay.style.display = 'block';
+            overlayShown = true;
+            status.textContent = '✨ Siga nas redes sociais!';
+            status.style.color = '#ffd700';
+          }
+        });
+        
+        // Função para esconder overlay quando vídeo começa a tocar (reset)
+        video.addEventListener('play', function() {
+          overlay.style.display = 'none';
+          overlayShown = false; // Reset da flag
+          status.textContent = '🔊 Vídeo reproduzindo';
+          status.style.color = '#ccc';
+        });
+        
+        // Função para esconder overlay quando vídeo é pausado
+        video.addEventListener('pause', function() {
+          overlay.style.display = 'none';
+        });
+        
+        // Função global para repetir vídeo
+        window.replayVideo = function() {
+          video.currentTime = 0;
+          video.play();
+          overlay.style.display = 'none';
+          overlayShown = false; // Reset da flag
+        };
+      });
+    </script>
+<% end %>
+
+<!-- 📱 SEÇÃO DE REDES SOCIAIS FIXA (APENAS QUANDO NÃO TEM VÍDEO) -->
+<% if @artist.present? && !@artist.video.attached? %>
+  <div style="margin: 20px 0; padding: 15px 0;">
+    <p style="font-size: 20px; color: white; margin-bottom: 10px;">
+      📱 <strong>Siga <%= @artist.name %>:</strong>
+    </p>
+    
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <% if @artist.link1.present? %>
+        <%= link_to (@artist.link1_text.presence || "WhatsApp"), 
+            @artist.link1, target: "_blank", role: "button" %>
+      <% end %>
+      
+      <% if @artist.link2.present? %>
+        <%= link_to (@artist.link2_text.presence || "Instagram"), 
+            @artist.link2, target: "_blank", role: "button" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

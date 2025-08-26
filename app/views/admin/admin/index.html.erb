@@ -1,48 +1,45 @@
 <!-- filepath: app/views/admin/admin/index.html.erb -->
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold mb-6">Admin Dashboard</h1>
+<h1 class="text-2xl font-bold mb-6">Admin Dashboard</h1>
 
-  <div style="zoom: 75%;">
+  <% if current_user %>
+      <strong>User:</strong> <%= current_user.id %>
+  <% end %>
 
-    <% if current_user %>
-        <strong>User:</strong> <%= current_user.id %>
-    <% end %>
+  <% if @artist %>
+      <strong>Artista:</strong> <%= @artist.name %>
+      <strong>ID:</strong> <%= @artist.id %>
+  <% end %>
+  
+  <% if @events.any? %>
+    <table class="min-w-full divide-y divide-gray-200">
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @events.each do |event| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap"><%= event.event_date %></td>
+            <td class="px-6 py-4"><%= event.description %></td>
+            <td class="px-6 py-4"><%= event.artist&.name %></td>
+            <td class="px-6 py-4">
+              <%= link_to "Fila", admin_event_queue_path(event), 
+                  role: "button" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="text-align: center; padding: 20px; color: gray;">
+      <p>Nenhum evento encontrado para <%= @artist&.name || "este artist" %>.</p>
+    </div>
+  <% end %>
+
+  <div class="mb-4">
+    <%= link_to "🎭 Artistas", artists_path, 
+        role: "button" %>
 
     <% if @artist %>
-        <strong>Artista:</strong> <%= @artist.name %>
-        <strong>ID:</strong> <%= @artist.id %>
+      <%= link_to "📅 Eventos", events_path(artist_id: @artist.id), 
+        role: "button" %>
     <% end %>
-    
-    <% if @events.any? %>
-      <table class="min-w-full divide-y divide-gray-200">
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% @events.each do |event| %>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap"><%= event.event_date %></td>
-              <td class="px-6 py-4"><%= event.description %></td>
-              <td class="px-6 py-4"><%= event.artist&.name %></td>
-              <td class="px-6 py-4">
-                <%= link_to "Fila", admin_event_queue_path(event), 
-                    role: "button" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    <% else %>
-      <div style="text-align: center; padding: 20px; color: gray;">
-        <p>Nenhum evento encontrado para <%= @artist&.name || "este artist" %>.</p>
-      </div>
-    <% end %>
-
-    <div class="mb-4">
-      <%= link_to "🎭 Artistas", artists_path, 
-          role: "button" %>
-
-      <% if @artist %>
-        <%= link_to "📅 Eventos", events_path(artist_id: @artist.id), 
-          role: "button" %>
-      <% end %>
-    </div>
   </div>
 </div>

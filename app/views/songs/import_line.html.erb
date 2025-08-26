@@ -1,30 +1,149 @@
 <!-- filepath: c:\DEV\MySetList\app\views\songs\import_line.html.erb -->
-<h2>Tratamento de Importação</h2>
+<h2>Tratamento de Importação - Linha <%= @csv_index + 1 %> de <%= @csv_lines.size %></h2>
+<p><strong>Progresso:</strong> <%= @imported_count %> importadas</p>
 
 <% if @found %>
-  <h3>Música encontrada</h3>
-  <p><strong>song_id:</strong> <%= @song.id %></p>
-  <p><strong>Nome da música:</strong> <%= @song.name %></p>
+  <h3>✅ Música encontrada no banco</h3>
+  <p><strong>ID:</strong> <%= @song.id %></p>
+  <p><strong>Nome:</strong> <%= @song.name %></p>
   <p><strong>Banda:</strong> <%= @song.band %></p>
+  <p><strong>ISRC:</strong> <%= @song.isrc.presence || "Não informado" %></p>
   <p><strong>Letra atual:</strong> <%= @letra_atual %></p>
   <p><strong>Letra do CSV:</strong> <%= @letra_csv %></p>
-  <%= button_to "Cancelar importação", cancel_import_songs_path, method: :post %>
-  <%= button_to "Importar letra", import_line_action_songs_path(action_type: "import_lyrics"), method: :post %>
-  <%= button_to "Próxima música", import_line_action_songs_path(action_type: "next"), method: :post %>
+  
+  <%= button_to "❌ Cancelar importação", cancel_import_songs_path, method: :post, style: "background-color: #dc3545;" %>
+  <%= button_to "📝 Importar letra", import_line_action_songs_path(action_type: "import_lyrics"), method: :post, style: "background-color: #28a745;" %>
+  <%= button_to "⏭️ Próxima música", import_line_action_songs_path(action_type: "next"), method: :post, style: "background-color: #6c757d;" %>
+
 <% else %>
-  <h3>Música não encontrada</h3>
+  <h3>🔍 Música não encontrada - Buscar no MusicBrainz</h3>
   <p><strong>Nome da música:</strong> <%= @song_name %></p>
   <p><strong>Banda:</strong> <%= @band %></p>
-  <h4>Opções do MusicBrainz:</h4>
-  <%= form_with url: import_line_action_songs_path(action_type: "import_music"), method: :post do |form| %>
-    <% @musicbrainz_results.each do |result| %>
-      <div>
-        <%= form.radio_button :musicbrainz_option, result[:id] %>
-        <%= result[:title] %> - <%= result[:artist] %>
+  
+  <% if @musicbrainz_results.any? %>
+    <h4>🎵 Opções encontradas no MusicBrainz:</h4>
+    <%= form_with url: import_line_action_songs_path, method: :post, local: true do |form| %>
+      <%= form.hidden_field :action_type, value: "import_music" %>
+      
+      <% @musicbrainz_results.each do |result| %>
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 4px;">
+          <%= form.radio_button :musicbrainz_option, result[:id], 
+              checked: loop.first,
+              data: { 
+                isrc: result[:isrc],
+                title: result[:title],
+                artist: result[:artist] 
+              } %>
+          <strong><%= result[:title] %></strong> - <%= result[:artist] %>
+          <% if result[:isrc].present? %>
+            <br><small style="color: #28a745;">✅ ISRC: <%= result[:isrc] %></small>
+          <% else %>
+            <br><small style="color: #ffc107;">⚠️ Sem ISRC</small>
+          <% end %>
+          <small style="color: #888;">(Score: <%= result[:score] %>)</small>
+        </div>
+      <% end %>
+      
+      <!-- CAMPOS OCULTOS -->
+      <%= form.hidden_field :selected_isrc, id: "selected_isrc" %>
+      <%= form.hidden_field :selected_title, id: "selected_title" %>
+      <%= form.hidden_field :selected_artist, id: "selected_artist" %>
+      
+      <div style="margin: 15px 0;">
+        <%= button_to "❌ Cancelar", cancel_import_songs_path, method: :post, style: "background-color: #dc3545; margin-right: 10px;" %>
+        <%= form.submit "💾 Importar do MusicBrainz", style: "background-color: #28a745; margin-right: 10px;" %>
+        <%= button_to "⏭️ Próxima música", import_line_action_songs_path(action_type: "next"), method: :post, style: "background-color: #6c757d;" %>
       </div>
     <% end %>
-    <%= button_to "Cancelar importação", cancel_import_songs_path, method: :post %>
-    <%= form.submit "Importar música e letra" %>
-    <%= button_to "Próxima música", import_line_action_songs_path(action_type: "next"), method: :post %>
+  <% else %>
+    <p style="color: #ffc107;">⚠️ Nenhuma música encontrada no MusicBrainz</p>
   <% end %>
+
+  <!-- OPÇÃO PARA CRIAR SEM MUSICBRAINZ -->
+  <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+    <h4>📝 Criar música sem MusicBrainz</h4>
+    <p><strong>Nome:</strong> <%= @song_name %></p>
+    <p><strong>Banda:</strong> <%= @band %></p>
+    <p style="color: #666;"><em>Será criada sem ISRC</em></p>
+    
+    <%= button_to "💾 Criar música simples", import_line_action_songs_path(action_type: "import_music"), method: :post, style: "background-color: #ffc107; margin-right: 10px;" %>
+  </div>
+
+  <!-- BOTÕES DE NAVEGAÇÃO -->
+  <div style="margin-top: 20px;">
+    <%= button_to "❌ Cancelar importação", cancel_import_songs_path, method: :post, style: "background-color: #dc3545; margin-right: 10px;" %>
+    <%= button_to "⏭️ Próxima música", import_line_action_songs_path(action_type: "next"), method: :post, style: "background-color: #6c757d;" %>
+  </div>
 <% end %>
+
+<hr>
+<p><strong>Letra completa do CSV:</strong></p>
+<pre class="lyrics-preview"><%= @letra_csv_full %></pre>
+
+<style>
+  .lyrics-preview {
+    font-family: 'Courier New', 'Courier', monospace !important;
+    white-space: pre-wrap;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.9em;
+    line-height: 1.3;
+  }
+</style>
+
+<hr>
+<p><strong>Letra completa do CSV:</strong></p>
+<pre style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; white-space: pre-wrap;"><%= @letra_csv_full %></pre>
+
+<!-- JAVASCRIPT PARA CAPTURA DO ISRC -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const radioButtons = document.querySelectorAll('input[type=radio][name="musicbrainz_option"]');
+    const isrcField = document.getElementById('isrc_manual');
+    const selectedIsrcField = document.getElementById('selected_isrc');
+    const selectedTitleField = document.getElementById('selected_title');
+    const selectedArtistField = document.getElementById('selected_artist');
+
+    // Função para atualizar campos com base na seleção
+    function updateFields(radio) {
+      if (selectedIsrcField) selectedIsrcField.value = radio.dataset.isrc || "";
+      if (selectedTitleField) selectedTitleField.value = radio.dataset.title || "";
+      if (selectedArtistField) selectedArtistField.value = radio.dataset.artist || "";
+      
+      // Auto-preenche o campo ISRC manual
+      if (isrcField && radio.dataset.isrc) {
+        isrcField.value = radio.dataset.isrc;
+      }
+    }
+
+    // Adiciona listener para cada radio button
+    radioButtons.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        if (this.checked) {
+          updateFields(this);
+        }
+      });
+    });
+
+    // Inicializa com o primeiro radio selecionado
+    const firstChecked = document.querySelector('input[type=radio][name="musicbrainz_option"]:checked');
+    if (firstChecked) {
+      updateFields(firstChecked);
+    }
+
+    // Validação do formato ISRC
+    if (isrcField) {
+      isrcField.addEventListener('input', function() {
+        const value = this.value.toUpperCase();
+        this.value = value;
+        
+        const isValid = /^[A-Z]{2}[A-Z0-9]{3}[0-9]{7}$/.test(value);
+        this.style.borderColor = value === '' || isValid ? '#ccc' : '#ff0000';
+      });
+    }
+  });
+</script>

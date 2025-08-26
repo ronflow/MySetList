@@ -18,8 +18,8 @@
   <div>
     <%= link_to "Voltar para Artista", artists_path, 
         role: "button" %>
-    <%= link_to "Editar Artista", edit_artist_path(@artist), 
-        role: "button" %>
+    <!-- %= link_to "Editar Artista", edit_artist_path(@artist), 
+        role: "button" % -->
   </div>
 
   <hr>
@@ -41,6 +41,10 @@
             role: "button",
             style: "background-color: #6f42c1; color: white;" %>
         <%= link_to "🌐 Ver e Inserir via WEB", show_set_web_pub_artist_artist_set_path(@artist.id, artist_set.id), 
+            role: "button", 
+            style: "background-color: #17a2b8; color: white;" %>
+        <!-- No topo da página de sets do artista -->
+        <%= link_to "Importar Músicas", import_csv_songs_path, 
             role: "button", 
             style: "background-color: #17a2b8; color: white;" %>
       </div>

@@ -104,6 +104,6 @@ class ArtistsController < ApplicationController
   end
 
   def artist_params
-    params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo)
+    params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo, :video)
   end
 end
