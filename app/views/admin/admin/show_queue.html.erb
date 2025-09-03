@@ -307,14 +307,3 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('beforeunload', saveOrder);
 });
 </script>
-
-<!-- ✅ BOTÃO DE DEBUG (remover em produção) -->
-<div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border: 1px solid #ccc;">
-  <strong>🔧 Debug:</strong>
-  <button onclick="resetToDBOrder()" style="margin-left: 10px; padding: 5px 10px; background: #ff6b6b; color: white; border: none; border-radius: 3px;">
-    🔄 Resetar para Ordem do Banco
-  </button>
-  <button onclick="console.log('💾 localStorage:', localStorage.getItem('queue-order-<%= @event.id %>'))" style="margin-left: 5px; padding: 5px 10px; background: #4ecdc4; color: white; border: none; border-radius: 3px;">
-    📋 Ver localStorage
-  </button>
-</div>

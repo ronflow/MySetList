@@ -3,11 +3,6 @@
 # Exit on error
 set -o errexit
 
-echo "==> Updating apt cache & installing system packages"
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  imagemagick ghostscript fonts-dejavu-core
-
 bundle install
 bin/rails assets:precompile
 bin/rails assets:clean

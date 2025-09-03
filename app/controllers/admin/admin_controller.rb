@@ -1,4 +1,4 @@
-require 'mini_magick'
+# require 'mini_magick'
 
 module Admin
   class AdminController < ApplicationController
@@ -166,9 +166,9 @@ module Admin
       
       begin
         # Usa MiniMagick para conversão PDF → JPG
-        image = MiniMagick::Image.open(pdf_path.to_s)
-        image.format "jpg"
-        image.write(image_path.to_s)
+        #image = MiniMagick::Image.open(pdf_path.to_s)
+        #image.format "jpg"
+        #image.write(image_path.to_s)
         
         # Exibe imagem inline no navegador
         send_file image_path, type: 'image/jpeg', disposition: 'inline'
@@ -226,9 +226,9 @@ module Admin
       
       begin
         # Conversão PDF → JPG (primeira página ou todas mescladas)
-        image = MiniMagick::Image.open(pdf_path.to_s)
-        image.format "jpg"
-        image.write(image_path.to_s)
+        #image = MiniMagick::Image.open(pdf_path.to_s)
+        #image.format "jpg"
+        #image.write(image_path.to_s)
         
         # Exibe como imagem inline
         send_file image_path, type: 'image/jpeg', disposition: 'inline'
