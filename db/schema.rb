@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_172238) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_182109) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,7 +56,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_172238) do
     t.string "set_list_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "set_tags"
     t.index ["artist_id"], name: "index_artist_sets_on_artist_id"
+    t.index ["set_tags"], name: "index_artist_sets_on_set_tags"
   end
 
   create_table "artist_songs", force: :cascade do |t|

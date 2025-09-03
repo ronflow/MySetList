@@ -7,7 +7,7 @@
 <!-- Cabeçalho principal do setlist e artista -->
 <div>
   <h1>🌐 Buscar e Inserir da Web</h1>
-  <h2>Set: <%= @artist_set.set_list_name %> | Artist: <%= @artist.name %></h2>
+  <h2><%= @artist_set.set_list_name %></h2>
 </div>
 
 <!-- Link para voltar à página de sets do artista -->
@@ -18,7 +18,7 @@
 <hr>
 
 <!-- Tabela de músicas que já estão no set -->
-<h2>🎵 Músicas no Set (<%= @songs.count %>)</h2>
+<h2>Músicas no Set (<%= @songs.count %>)</h2>
 
 <!-- Formulário para buscar músicas dentro do set atual -->
 <%= form_with url: show_sets_pub_artist_artist_set_path(@artist_set.artist, @artist_set), method: :get, local: true do %>
@@ -52,7 +52,7 @@
             <!-- Status da música no repertório -->
             <td>
               <% if artist_song %>
-                <span style="color: green;">✅ No repertório</span>
+                <span style="color: green;">✅ Adicionada</span>
                 <% if artist_song.letra.present? %>
                   <br><small style="color: #666;">Letra personalizada</small>
                 <% end %>
@@ -100,7 +100,7 @@
           placeholder: "Digite nome da música, artist, álbum...", 
           style: "width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px;" %>
       <!-- Botão de busca -->
-      <%= submit_tag "🔍 Buscar no MusicBrainz", 
+      <%= submit_tag "Buscar no MusicBrainz", 
           style: "background-color: #dc3545; color: white; padding: 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%;" %>
     </div>
     <small style="color: #666; display: block;">
@@ -174,12 +174,12 @@
                   <% if is_in_set %>
                     <span style="color: green; font-weight: bold;">✅ No Setlist</span>
                   <% elsif existing_song %>
-                    <span style="color: white;">💿 Já Existe</span>
+                    <span style="color: white;">á Existe</span>
                   <% else %>
-                    <span style="color: orange;">🆕 Nova</span>
+                    <span style="color: orange;">Nova</span>
                   <% end %>
                   <% if artist_song %>
-                    <br><span style="color: white; font-size: 18px;">🎤 Já no Setlist</span>
+                    <br><span style="color: white; font-size: 18px;">Já no Setlist</span>
                   <% end %>
                 </td>
               </tr>

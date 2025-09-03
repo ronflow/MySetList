@@ -28,9 +28,19 @@ class ArtistsController < ApplicationController
 
   # GET /artists/1 or /artists/1.json
   def show
-    @artist_songs = @artist.artist_songs.includes(:song)
-    @songs = @artist.songs
-    @artist_sets = @artist.artist_sets
+    # ✅ BUSCA POR NOME (existente)
+    if params[:query].present?
+      @artist_sets = @artist.artist_sets
+                           .where("set_list_name ILIKE ?", "%#{params[:query]}%")
+                           .order(:set_list_name)
+    # ✅ BUSCA POR TAGS (nova)
+    elsif params[:search_tags].present?
+      @artist_sets = @artist.artist_sets.with_tags(params[:search_tags]).order(:set_list_name)
+    else
+      @artist_sets = @artist.artist_sets.order(:set_list_name)
+    end
+    
+    @artist_sets = @artist_sets.includes(:artist_set_songs)
   end
 
   # GET /artists/new
@@ -72,6 +82,19 @@ class ArtistsController < ApplicationController
         format.json { render json: @artist.errors, status: :unprocessable_entity }
       end
     end
+
+    # ✅ VERIFICAR SE É OPERAÇÃO DE ATRIBUIR TAGS
+    if params[:action_type] == "assign_tags"
+      handle_assign_tags
+      return
+    end
+    
+    # ✅ LÓGICA ORIGINAL DE UPDATE DO ARTIST
+    if @artist.update(artist_params)
+      redirect_to @artist, notice: 'Artista atualizado com sucesso.'
+    else
+      render :edit
+    end
   end
 
   # DELETE /artists/1 or /artists/1.json
@@ -105,5 +128,32 @@ class ArtistsController < ApplicationController
 
   def artist_params
     params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo, :video)
+  end
+
+  # ✅ MÉTODO PARA TRATAR ATRIBUIÇÃO DE TAGS
+  def handle_assign_tags
+    artist_set_id = params[:artist_set_id]
+    set_tags = params[:set_tags]
+    
+    if artist_set_id.present?
+      artist_set = @artist.artist_sets.find(artist_set_id)
+      
+      if params[:clear_tags].present?
+        # Limpar todas as tags
+        artist_set.update!(set_tags: nil)
+        redirect_to artist_path(@artist), notice: "Tags removidas do setlist '#{artist_set.set_list_name}'"
+      elsif set_tags.present?
+        # Atribuir novas tags
+        artist_set.update!(set_tags: set_tags.strip)
+        redirect_to artist_path(@artist), notice: "Tags atribuídas ao setlist '#{artist_set.set_list_name}'"
+      else
+        redirect_to artist_path(@artist), alert: "Digite as tags para atribuir ao setlist"
+      end
+    else
+      redirect_to artist_path(@artist), alert: "Selecione um setlist primeiro"
+    end
+  rescue => e
+    Rails.logger.error "❌ Erro ao atribuir tags: #{e.message}"
+    redirect_to artist_path(@artist), alert: "Erro ao atribuir tags: #{e.message}"
   end
 end

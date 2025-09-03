@@ -110,6 +110,10 @@ Rails.application.routes.draw do
         get :show_set_web_pub    # Visualização web para busca externa
         post :buscar_musicbrainz # Buscar músicas no MusicBrainz
         post :adicionar_musicas_web # Adicionar músicas do MusicBrainz
+
+        # ✅ NOVO: Gerar XML do setlist
+        get :generate_xml        # Gerar arquivo XML do setlist
+        post :duplicate          # Duplicar setlist
       end
       
       # Músicas específicas do set (artist_set_songs)

@@ -14,7 +14,7 @@ class ArtistSetsController < ApplicationController
   before_action :set_artist, only: [
     :new, :create, :edit, :update, :destroy, 
     :show_sets_pub, :adicionar_musicas, :remover_musicas, 
-    :show_set_web_pub, :buscar_musicbrainz, :adicionar_musicas_web
+    :show_set_web_pub, :buscar_musicbrainz, :adicionar_musicas_web, :duplicate
   ]
   
   before_action :set_artist_set, only: [
@@ -100,114 +100,195 @@ class ArtistSetsController < ApplicationController
 
   # 📋 VISUALIZAR E GERENCIAR MÚSICAS DO SET
   # Interface principal para adicionar/remover músicas usando banco local
+  # def show_sets_pub
+  #   @artist = @artist_set.artist
+    
+  #   # 🎶 MÚSICAS ATUAIS DO SET
+  #   # Carrega músicas que já fazem parte do setlist
+  #   @songs = @artist_set.songs.distinct
+    
+  #   # 🔍 FILTRO PARA MÚSICAS DO SET
+  #   # Permite buscar músicas específicas dentro do set atual
+  #   if params[:search_set].present?
+  #     @songs = @songs.where("name ILIKE ?", "%#{params[:search_set]}%")
+  #   end
+    
+  #   # 📚 TODAS AS MÚSICAS DISPONÍVEIS
+  #   # Carrega catálogo completo de músicas da tabela local
+  #   @all_songs = Song.all
+    
+  #   # 🔍 FILTROS PARA CATÁLOGO GERAL
+  #   # Busca por nome nas músicas disponíveis
+  #   if params[:query].present?
+  #     @all_songs = @all_songs.where("name ILIKE ?", "%#{params[:query]}%")
+  #   end
+    
+  #   # 📊 ORDENAÇÃO DOS RESULTADOS
+  #   if params[:order] == "name"
+  #     @all_songs = @all_songs.order(:name)    # Alfabética
+  #   else
+  #     @all_songs = @all_songs.order(:id)      # Por ID (mais recentes)
+  #   end
+  # end
+
   def show_sets_pub
-    @artist = @artist_set.artist
+    # Busca artist_songs através de artist_set_songs
+    @artist_set_song_relations = @artist_set.artist_set_songs.includes(:artist_song => :song)
     
-    # 🎶 MÚSICAS ATUAIS DO SET
-    # Carrega músicas que já fazem parte do setlist
-    @songs = @artist_set.songs.distinct
+    # Extrai as songs para compatibilidade com a view
+    @songs = @artist_set_song_relations.map { |ass| ass.artist_song.song }.compact
     
-    # 🔍 FILTRO PARA MÚSICAS DO SET
-    # Permite buscar músicas específicas dentro do set atual
+    # Filtro de busca no set
     if params[:search_set].present?
-      @songs = @songs.where("name ILIKE ?", "%#{params[:search_set]}%")
+      search_term = params[:search_set].downcase
+      @songs = @songs.select { |song| 
+        song.name.downcase.include?(search_term) || 
+        song.band.downcase.include?(search_term) 
+      }
     end
     
-    # 📚 TODAS AS MÚSICAS DISPONÍVEIS
-    # Carrega catálogo completo de músicas da tabela local
-    @all_songs = Song.all
-    
-    # 🔍 FILTROS PARA CATÁLOGO GERAL
-    # Busca por nome nas músicas disponíveis
+    # Busca geral para adicionar músicas
     if params[:query].present?
-      @all_songs = @all_songs.where("name ILIKE ?", "%#{params[:query]}%")
-    end
-    
-    # 📊 ORDENAÇÃO DOS RESULTADOS
-    if params[:order] == "name"
-      @all_songs = @all_songs.order(:name)    # Alfabética
+      @all_songs = Song.joins(:artist_songs)
+                      .where(artist_songs: { artist: @artist })
+                      .where("songs.name ILIKE ? OR songs.band ILIKE ?", 
+                             "%#{params[:query]}%", "%#{params[:query]}%")
+                      .distinct
     else
-      @all_songs = @all_songs.order(:id)      # Por ID (mais recentes)
+      @all_songs = Song.joins(:artist_songs)
+                      .where(artist_songs: { artist: @artist })
+                      .distinct
+                      .limit(50) # Limita para performance
     end
   end
 
   # ➕ ADICIONAR MÚSICAS AO SET (do banco local)
   # Adiciona músicas selecionadas do catálogo local ao setlist
-  def adicionar_musicas
-    song_ids = params[:song_ids].reject(&:blank?)
+  # def adicionar_musicas
+  #   song_ids = params[:song_ids].reject(&:blank?)
     
-    if song_ids.any?
-      added_count = 0
+  #   if song_ids.any?
+  #     added_count = 0
       
+  #     song_ids.each do |song_id|
+  #       song = Song.find(song_id)
+        
+  #       # 🔗 1. CRIAR LIGAÇÃO ARTISTA-MÚSICA
+  #       # Relaciona música com artista (permite letra personalizada)
+  #       artist_song = ArtistSong.find_or_create_by(
+  #         artist: @artist,
+  #         song: song
+  #       ) do |as|
+  #         # Copia letra da música original se disponível
+  #         as.letra = song.lyrics if song.lyrics.present?
+  #       end
+        
+  #       # 🎵 2. ADICIONAR AO SET
+  #       # Cria relacionamento entre set e a ligação artista-música
+  #       artist_set_song = ArtistSetSong.find_or_create_by(
+  #         artist_set: @artist_set,
+  #         artist_song_id: artist_song.id  # ⚠️ IMPORTANTE: usa artist_song_id
+  #       )
+        
+  #       added_count += 1 if artist_set_song.persisted?
+  #     end
+      
+  #     # ✅ FEEDBACK DE SUCESSO
+  #     redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
+  #                 notice: "#{added_count} música(s) adicionada(s) ao set com sucesso!"
+  #   else
+  #     # ⚠️ AVISO: Nenhuma música selecionada
+  #     redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
+  #                 alert: "Nenhuma música foi selecionada."
+  #   end
+  # end
+
+  def adicionar_musicas
+    song_ids = params[:song_ids]
+    
+    if song_ids.present?
+      added_count = 0
       song_ids.each do |song_id|
         song = Song.find(song_id)
+        # Encontra o artist_song correspondente
+        artist_song = @artist.artist_songs.find_by(song: song)
         
-        # 🔗 1. CRIAR LIGAÇÃO ARTISTA-MÚSICA
-        # Relaciona música com artista (permite letra personalizada)
-        artist_song = ArtistSong.find_or_create_by(
-          artist: @artist,
-          song: song
-        ) do |as|
-          # Copia letra da música original se disponível
-          as.letra = song.lyrics if song.lyrics.present?
+        if artist_song && !@artist_set.artist_set_songs.exists?(artist_song: artist_song)
+          @artist_set.artist_set_songs.create!(artist_song: artist_song)
+          added_count += 1
         end
-        
-        # 🎵 2. ADICIONAR AO SET
-        # Cria relacionamento entre set e a ligação artista-música
-        artist_set_song = ArtistSetSong.find_or_create_by(
-          artist_set: @artist_set,
-          artist_song_id: artist_song.id  # ⚠️ IMPORTANTE: usa artist_song_id
-        )
-        
-        added_count += 1 if artist_set_song.persisted?
       end
       
-      # ✅ FEEDBACK DE SUCESSO
       redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
-                  notice: "#{added_count} música(s) adicionada(s) ao set com sucesso!"
+                  notice: "#{added_count} música(s) adicionada(s) ao set."
     else
-      # ⚠️ AVISO: Nenhuma música selecionada
       redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
-                  alert: "Nenhuma música foi selecionada."
+                  alert: "Nenhuma música selecionada."
     end
   end
 
   # ➖ REMOVER MÚSICAS DO SET
   # Remove músicas selecionadas do setlist (mantém no catálogo)
+  # def remover_musicas
+  #   song_ids = params[:song_ids]
+    
+  #   if song_ids.present?
+  #     removed_count = 0
+      
+  #     song_ids.each do |song_id|
+  #       # 🔍 1. ENCONTRAR LIGAÇÃO ARTISTA-MÚSICA
+  #       artist_song = ArtistSong.find_by(
+  #         artist: @artist,
+  #         song_id: song_id
+  #       )
+        
+  #       if artist_song
+  #         # 🗑️ 2. REMOVER DO SET
+  #         # Remove apenas do set, mantém ligação artista-música
+  #         artist_set_song = ArtistSetSong.find_by(
+  #           artist_set: @artist_set,
+  #           artist_song_id: artist_song.id  # ⚠️ IMPORTANTE: usa artist_song_id
+  #         )
+          
+  #         if artist_set_song&.destroy
+  #           removed_count += 1
+  #         end
+  #       end
+  #     end
+      
+  #     # ✅ FEEDBACK DE SUCESSO
+  #     redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
+  #                 notice: "#{removed_count} música(s) removida(s) do set!"
+  #   else
+  #     # ⚠️ AVISO: Nenhuma música selecionada
+  #     redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
+  #                 alert: "Nenhuma música foi selecionada para remoção."
+  #   end
+  # end
+
   def remover_musicas
     song_ids = params[:song_ids]
     
     if song_ids.present?
       removed_count = 0
-      
       song_ids.each do |song_id|
-        # 🔍 1. ENCONTRAR LIGAÇÃO ARTISTA-MÚSICA
-        artist_song = ArtistSong.find_by(
-          artist: @artist,
-          song_id: song_id
-        )
+        song = Song.find(song_id)
+        artist_song = @artist.artist_songs.find_by(song: song)
         
         if artist_song
-          # 🗑️ 2. REMOVER DO SET
-          # Remove apenas do set, mantém ligação artista-música
-          artist_set_song = ArtistSetSong.find_by(
-            artist_set: @artist_set,
-            artist_song_id: artist_song.id  # ⚠️ IMPORTANTE: usa artist_song_id
-          )
-          
-          if artist_set_song&.destroy
+          artist_set_song = @artist_set.artist_set_songs.find_by(artist_song: artist_song)
+          if artist_set_song
+            artist_set_song.destroy
             removed_count += 1
           end
         end
       end
       
-      # ✅ FEEDBACK DE SUCESSO
       redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
-                  notice: "#{removed_count} música(s) removida(s) do set!"
+                  notice: "#{removed_count} música(s) removida(s) do set."
     else
-      # ⚠️ AVISO: Nenhuma música selecionada
       redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set),
-                  alert: "Nenhuma música foi selecionada para remoção."
+                  alert: "Nenhuma música selecionada."
     end
   end
 
@@ -377,11 +458,110 @@ class ArtistSetsController < ApplicationController
     end
   end
 
+  # GET /artists/:artist_id/artist_sets/:id/generate_xml
+  # Gera arquivo XML do setlist para download
+  # def generate_xml
+  #   @artist_set = ArtistSet.find(params[:id])
+  #   @artist = @artist_set.artist
+    
+  #   Rails.logger.info "🎵 Gerando XML para setlist: #{@artist_set.set_list_name}"
+    
+  #   # ✅ MÉTODO ALTERNATIVO: Buscar músicas via IDs
+  #   begin
+  #     # Tenta usar a associação song primeiro
+  #     @songs = @artist_set.artist_set_songs.includes(:song).order(:created_at).map(&:song)
+  #   rescue ActiveRecord::AssociationNotFoundError
+  #     # Se não funcionar, usa song_id diretamente
+  #     song_ids = @artist_set.artist_set_songs.pluck(:song_id)
+  #     @songs = Song.where(id: song_ids)
+      
+  #     Rails.logger.warn "⚠️ Usando song_id diretamente - verificar associação ArtistSetSong"
+  #   end
+    
+  #   Rails.logger.info "📋 Músicas no set: #{@songs.count}"
+    
+  #   if @songs.empty?
+  #     redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set), 
+  #                 alert: 'Nenhuma música encontrada no set para gerar XML'
+  #     return
+  #   end
+    
+  #   # Gera conteúdo XML
+  #   xml_content = generate_setlist_xml(@songs)
+    
+  #   # Nome do arquivo
+  #   filename = "#{@artist_set.set_list_name.parameterize}.xml"
+    
+  #   # Envia arquivo para download
+  #   send_data xml_content,
+  #     filename: filename,
+  #     type: 'application/xml',
+  #     disposition: 'attachment'
+      
+  #   Rails.logger.info "✅ XML gerado com sucesso: #{filename}"
+  # end
+
+  def generate_xml
+    begin
+      # Busca músicas do set usando artist_song_id
+      @songs = @artist_set.songs
+      
+      if @songs.empty?
+        redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set), 
+                    alert: 'Nenhuma música encontrada no set para gerar XML'
+        return
+      end
+      
+      # Gera conteúdo XML
+      xml_content = generate_setlist_xml(@songs)
+      
+      # Nome do arquivo
+      filename = "#{@artist_set.set_list_name.parameterize}.xml"
+      
+      # Envia arquivo para download
+      send_data xml_content,
+        filename: filename,
+        type: 'application/xml',
+        disposition: 'attachment'
+        
+      Rails.logger.info "✅ XML gerado com sucesso: #{filename}"
+    rescue => e
+      Rails.logger.error "❌ Erro ao gerar XML: #{e.message}"
+      redirect_to show_sets_pub_artist_artist_set_path(@artist, @artist_set), 
+                  alert: "Erro ao gerar XML: #{e.message}"
+    end
+  end
+
+  # ✅ MÉTODO DUPLICATE
+  def duplicate
+    begin
+      # Implementar lógica de duplicação aqui
+      new_name = "#{@artist_set.set_list_name} (Cópia)"
+      
+      duplicated_set = @artist_set.dup
+      duplicated_set.set_list_name = new_name
+      duplicated_set.save!
+      
+      # Copiar as músicas do set
+      @artist_set.artist_set_songs.each do |song_relation|
+        duplicated_set.artist_set_songs.create!(
+          artist_song_id: song_relation.artist_song_id
+        )
+      end
+      
+      redirect_to artist_path(@artist), 
+                  notice: "Setlist duplicado com sucesso como '#{new_name}'"
+    rescue => e
+      Rails.logger.error "❌ Erro ao duplicar: #{e.message}"
+      redirect_to artist_path(@artist), 
+                  alert: "Erro ao duplicar setlist: #{e.message}"
+    end
+  end
+
+  private
   # =============================================================================
   # 🔒 MÉTODOS PRIVADOS (Helpers e Segurança)
   # =============================================================================
-
-  private
 
   # 👤 CARREGAR ARTISTA
   # Before_action para carregar artista baseado no parâmetro da URL
@@ -398,6 +578,33 @@ class ArtistSetsController < ApplicationController
   # 🛡️ PARÂMETROS PERMITIDOS
   # Strong parameters para segurança - define campos aceitos do formulário
   def artist_set_params
-    params.require(:artist_set).permit(:set_list_name, :artist_id)
+    params.require(:artist_set).permit(:set_list_name, :artist_id, :description, :set_tags)
+  end
+
+  # Gera conteúdo XML do setlist
+  def generate_setlist_xml(songs)
+    xml = []
+    
+    # Abertura do XML
+    xml << '<?xml version="1.0" encoding="UTF-8"?>'
+    xml << '<Sounds>'
+    
+    # Para cada música, gera um elemento Sound
+    songs.each do |song|
+      # Sanitiza nome da música para usar como filename
+      safe_filename = song.name.gsub(/[^\w\s-]/, '').gsub(/\s+/, ' ').strip
+      
+      xml << '  <Sound>'
+      xml << "    <SoundName>#{CGI.escapeHTML(song.name)}</SoundName>"
+      xml << "    <SoundFilename>#{safe_filename}.mp3</SoundFilename>"
+      xml << "    <SoundVolume>1.0</SoundVolume>"
+      xml << '  </Sound>'
+    end
+    
+    # Fechamento do XML
+    xml << '</Sounds>'
+    
+    # Junta todas as linhas
+    xml.join("\n")
   end
 end
