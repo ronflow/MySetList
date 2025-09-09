@@ -18,7 +18,7 @@ class Artist < ApplicationRecord
 
   # Validações
   validates :name, presence: true
-  
+
   # Campos de redes sociais
   def link1_text
     super.presence || "WhatsApp"
@@ -30,5 +30,20 @@ class Artist < ApplicationRecord
   
   def social_message
     super.presence || "Acompanhe #{name} nas redes sociais!"
+  end
+  
+  private
+  
+  def generate_unique_name
+    base_name = self.set_list_name
+    counter = 2
+    new_name = "#{base_name} #{counter}"
+    
+    while self.artist.artist_sets.exists?(set_list_name: new_name)
+      counter += 1
+      new_name = "#{base_name} #{counter}"
+    end
+    
+    new_name
   end
 end

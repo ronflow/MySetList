@@ -38,7 +38,7 @@
               <tbody id="queue-table-body">
                 <% @visible_queues.each do |queue| %>
                  <!-- ✅ LOG DETALHADO DE CADA QUEUE VISÍVEL -->
-                 <% Rails.logger.error "📋 VISIBLE QUEUE: Queue ID: #{queue.id} | Event ID: #{queue.event_id} | Song ID: #{queue.song_id} | Song Name: '#{queue.song.name}' | Position: #{queue.position} | Hidden: #{queue.hidden.inspect}" %>
+                 <% Rails.logger.error "VISIBLE QUEUE: Queue ID: #{queue.id} | Event ID: #{queue.event_id} | Song ID: #{queue.song_id} | Song Name: '#{queue.song.name}' | Position: #{queue.position} | Hidden: #{queue.hidden.inspect}" %>
                   <tr data-id="<%= queue.id %>">
                     <td><%= queue.position %></td>
                     <td><%= queue.song.name %></td>
