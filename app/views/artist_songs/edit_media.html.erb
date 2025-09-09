@@ -1,0 +1,125 @@
+<!-- filepath: app/views/artist_songs/edit_media.html.erb -->
+<div class="container">
+  <!-- CABEÇALHO -->
+  <div class="header-section">
+    <h1>🎵 Editar Mídia</h1>
+    <h2><%= @artist_song.song.name %> - <%= @artist_song.song.band %></h2>
+    
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <%= link_to "Artista", artist_path(@artist_song.artist) %> > 
+      <%= link_to "Música", artist_song_path(@artist_song) %> > 
+      Editar Mídia
+    </nav>
+  </div>
+
+  <hr>
+
+  <!-- FORMULÁRIO DE EDIÇÃO -->
+  <%= form_with model: @artist_song, url: update_media_artist_song_path(@artist_song), 
+      method: :patch, local: true, class: "media-form" do |form| %>
+    
+    <!-- MENSAGENS DE ERRO -->
+    <% if @artist_song.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@artist_song.errors.count, "erro") %> impediu(iram) que esta música fosse salva:</h4>
+        <ul>
+          <% @artist_song.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- CAMPO: DURAÇÃO -->
+    <div class="form-group" style="margin-bottom: 20px;">
+      <%= form.label :duracao, "Duração (min:seg)", 
+          style: "font-weight: bold; display: block; margin-bottom: 5px;" %>
+      <%= form.text_field :duracao, 
+          placeholder: "3:45", 
+          pattern: "\d{1,2}:\d{2}",
+          style: "width: 150px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;",
+          title: "Formato: minutos:segundos (ex: 3:45)" %>
+      <small style="color: #666; display: block; margin-top: 5px;">
+        Formato: minutos:segundos (ex: 3:45)
+      </small>
+    </div>
+
+    <!-- CAMPO: ARQUIVO DE VÍDEO -->
+    <div class="form-group" style="margin-bottom: 20px;">
+      <%= form.label :nome_arquivo_video, "Nome do Arquivo de Vídeo", 
+          style: "font-weight: bold; display: block; margin-bottom: 5px;" %>
+      <%= form.text_area :nome_arquivo_video, 
+          placeholder: "musica_video.mp4",
+          rows: 3,
+          style: "width: 100%; max-width: 500px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;" %>
+      <small style="color: #666; display: block; margin-top: 5px;">
+        Nome completo do arquivo de vídeo (ex: musica_video.mp4)
+      </small>
+    </div>
+
+    <!-- CAMPO: ARQUIVO DE SOM -->
+    <div class="form-group" style="margin-bottom: 20px;">
+      <%= form.label :nome_arquivo_som, "Nome do Arquivo de Som", 
+          style: "font-weight: bold; display: block; margin-bottom: 5px;" %>
+      <%= form.text_area :nome_arquivo_som, 
+          placeholder: "musica_audio.mp3",
+          rows: 3,
+          style: "width: 100%; max-width: 500px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;" %>
+      <small style="color: #666; display: block; margin-top: 5px;">
+        Nome completo do arquivo de som (ex: musica_audio.mp3)
+      </small>
+    </div>
+
+    <!-- BOTÕES DE AÇÃO -->
+    <div class="form-actions" style="margin-top: 30px;">
+      <%= form.submit "Salvar Alterações", 
+          style: "background-color: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px;" %>
+
+      <br>
+      
+      <%= link_to "Cancelar", artist_song_path(@artist_song), 
+          style: "background-color: #6c757d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-size: 16px;" %>
+    </div>
+  <% end %>
+
+  <!-- SEÇÃO: INFORMAÇÕES ATUAIS -->
+  <hr style="margin: 30px 0;">
+  
+  <div class="current-info" style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+    <h3>📋 Informações Atuais</h3>
+    
+    <div style="margin-bottom: 15px;">
+      <strong>⏱️ Duração:</strong>
+      <%= @artist_song.duracao.present? ? @artist_song.duracao : "Não definida" %>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <strong>🎥 Arquivo de Vídeo:</strong>
+      <%= @artist_song.nome_arquivo_video.present? ? @artist_song.nome_arquivo_video : "Não definido" %>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <strong>🎵 Arquivo de Som:</strong>
+      <%= @artist_song.nome_arquivo_som.present? ? @artist_song.nome_arquivo_som : "Não definido" %>
+    </div>
+  </div>
+</div>
+
+<!-- JAVASCRIPT PARA VALIDAÇÃO -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const duracaoField = document.querySelector('#artist_song_duracao');
+  
+  if (duracaoField) {
+    duracaoField.addEventListener('blur', function() {
+      const value = this.value.trim();
+      
+      if (value && !value.match(/^\d{1,2}:\d{2}$/)) {
+        alert('Formato de duração inválido. Use o formato min:seg (ex: 3:45)');
+        this.focus();
+      }
+    });
+  }
+});
+</script>

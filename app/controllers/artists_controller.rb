@@ -6,7 +6,6 @@ class ArtistsController < ApplicationController
     if current_user
       @artists = current_user.artists
       
-      # Adicionar funcionalidade de busca igual ao public_sets
       if params[:query].present?
         @artists = @artists.where("name ILIKE ?", "%#{params[:query]}%")
       end
@@ -16,24 +15,19 @@ class ArtistsController < ApplicationController
     end
   end
 
-  #Nova view de exibicao dos sets do artista
   def public_sets
     @artist_sets = @artist.artist_sets
     
-    # Busca por sets
     if params[:query].present?
       @artist_sets = @artist_sets.where("set_list_name ILIKE ?", "%#{params[:query]}%")
     end
   end
 
-  # GET /artists/1 or /artists/1.json
   def show
-    # ✅ BUSCA POR NOME (existente)
     if params[:query].present?
       @artist_sets = @artist.artist_sets
                            .where("set_list_name ILIKE ?", "%#{params[:query]}%")
                            .order(:set_list_name)
-    # ✅ BUSCA POR TAGS (nova)
     elsif params[:search_tags].present?
       @artist_sets = @artist.artist_sets.with_tags(params[:search_tags]).order(:set_list_name)
     else
@@ -43,16 +37,13 @@ class ArtistsController < ApplicationController
     @artist_sets = @artist_sets.includes(:artist_set_songs)
   end
 
-  # GET /artists/new
   def new
     @artist = Artist.new
   end
 
-  # GET /artists/1/edit
   def edit
   end
 
-  # POST /artists or /artists.json
   def create
     if current_user
       @artist = current_user.artists.build(artist_params)
@@ -71,8 +62,15 @@ class ArtistsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /artists/1 or /artists/1.json
+  # ✅ MÉTODO UPDATE CORRIGIDO
   def update
+    # ✅ VERIFICAR SE É OPERAÇÃO DE ATRIBUIR TAGS
+    if params[:action_type] == "assign_tags"
+      handle_assign_tags
+      return
+    end
+    
+    # ✅ LÓGICA ORIGINAL DE UPDATE DO ARTIST
     respond_to do |format|
       if @artist.update(artist_params)
         format.html { redirect_to @artist, notice: "Artist was successfully updated." }
@@ -82,22 +80,8 @@ class ArtistsController < ApplicationController
         format.json { render json: @artist.errors, status: :unprocessable_entity }
       end
     end
-
-    # ✅ VERIFICAR SE É OPERAÇÃO DE ATRIBUIR TAGS
-    if params[:action_type] == "assign_tags"
-      handle_assign_tags
-      return
-    end
-    
-    # ✅ LÓGICA ORIGINAL DE UPDATE DO ARTIST
-    if @artist.update(artist_params)
-      redirect_to @artist, notice: 'Artista atualizado com sucesso.'
-    else
-      render :edit
-    end
   end
 
-  # DELETE /artists/1 or /artists/1.json
   def destroy
     @artist.destroy!
 
@@ -108,16 +92,8 @@ class ArtistsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_artist
-    if current_user
-      @artist = current_user.artists.find(params[:id])
-    else
-      @artist = Artist.find(params[:id])
-    end
-  end
 
-  # Only allow a list of trusted parameters through.
+  # ✅ APENAS UM MÉTODO SET_ARTIST
   def set_artist
     if current_user
       @artist = current_user.artists.find(params[:id])
@@ -127,10 +103,9 @@ class ArtistsController < ApplicationController
   end
 
   def artist_params
-    params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo, :video)
+    params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo, :video, :other_attributes)
   end
 
-  # ✅ MÉTODO PARA TRATAR ATRIBUIÇÃO DE TAGS
   def handle_assign_tags
     artist_set_id = params[:artist_set_id]
     set_tags = params[:set_tags]
@@ -139,11 +114,9 @@ class ArtistsController < ApplicationController
       artist_set = @artist.artist_sets.find(artist_set_id)
       
       if params[:clear_tags].present?
-        # Limpar todas as tags
         artist_set.update!(set_tags: nil)
         redirect_to artist_path(@artist), notice: "Tags removidas do setlist '#{artist_set.set_list_name}'"
       elsif set_tags.present?
-        # Atribuir novas tags
         artist_set.update!(set_tags: set_tags.strip)
         redirect_to artist_path(@artist), notice: "Tags atribuídas ao setlist '#{artist_set.set_list_name}'"
       else

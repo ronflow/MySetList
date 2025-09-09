@@ -25,7 +25,7 @@
   <!-- ✅ EXIBIR TAGS DO SETLIST -->
   <% if @artist_set.set_tags.present? %>
     <div style="margin-bottom: 15px;">
-      <strong>🏷️ Tags:</strong>
+      <strong> Tags:</strong>
       <% @artist_set.set_tags.split(',').map(&:strip).each do |tag| %>
         <span style="background-color: #e9ecef; color: #495057; padding: 4px 8px; border-radius: 4px; font-size: 14px; margin-right: 5px;">
           <%= tag %>
@@ -68,6 +68,7 @@
         <tr>
           <th>Música</th>      <!-- Nome da música -->
           <th>Banda</th>       <!-- Nome da banda/artista -->
+          <th>Duração</th>     <!-- ✅ NOVA COLUNA -->
           <th>Status</th>      <!-- Status da música no repertório do artista -->
           <th>Ações</th>       <!-- Botões de ação (remover, ver letra, editar) -->
         </tr>
@@ -83,6 +84,15 @@
             
             <!-- COLUNA 2: Nome da banda -->
             <td><%= song.band %></td>
+
+            <!-- ✅ NOVA COLUNA: DURAÇÃO -->
+            <td>
+              <% if artist_song&.duracao.present? %>
+                <span style="color: #007bff;">⏱️ <%= artist_song.duracao %></span>
+              <% else %>
+                <span style="color: #ccc; font-size: 12px;">-</span>
+              <% end %>
+            </td>
             
             <!-- COLUNA 3: Status da música -->
             <td>
@@ -117,8 +127,17 @@
               
               <!-- BOTÃO: Editar letra (só aparece se música estiver no repertório) -->
               <% if artist_song %>
-                <%= link_to "Editar Letra", edit_lyrics_artist_song_path(artist_song), 
+                <%= link_to "Editar Letra", 
+                    edit_lyrics_artist_song_path(artist_song, set_id: @artist_set.id), 
                     style: "background-color: #28a745; color: white; padding: 4px 8px; text-decoration: none; border-radius: 4px; font-size: 12px; margin-left: 5px;" %>
+              <% end %>
+              
+              <!-- ✅ NOVO BOTÃO: Editar Música (duração, arquivos de mídia) -->
+              <% if artist_song %>
+                <%= link_to "Editar Música", 
+                    edit_media_artist_song_path(artist_song, set_id: @artist_set.id), 
+                    style: "background-color: #6f42c1; color: white; padding: 4px 8px; text-decoration: none; border-radius: 4px; font-size: 12px; margin-left: 5px;",
+                    title: "Editar duração e arquivos de mídia" %>
               <% end %>
             </td>
           </tr>
@@ -297,11 +316,11 @@
 <!-- ================================ -->
 <div>  
   <!-- ✅ BOTÃO DUPLICAR -->
-  <%= button_to "Duplicar", duplicate_artist_artist_set_path(@artist, artist_set), 
+  <%= button_to "Duplicar", duplicate_artist_artist_set_path(@artist, @artist_set), 
       method: :post,
       style: "background-color: #6c757d; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;",
-      confirm: "Duplicar setlist '#{artist_set.set_list_name}'?",
-      title: "Criar cópia deste setlist" %>
+      confirm: "Duplicar setlist '#{@artist_set.set_list_name}'?" %>
+      
   <!-- BOTÃO: Deleta o setlist inteiro -->
   <%= button_to "Deletar Setlist", 
       artist_artist_set_path(@artist_set.artist, @artist_set), 
@@ -384,13 +403,15 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // CHECKBOX MESTRE: Controla seleção de todas as disponíveis
-  selectAllCheckbox.addEventListener('change', function() {
-    const isChecked = this.checked;
-    availableSongCheckboxes.forEach(checkbox => {
-      checkbox.checked = isChecked;
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      const isChecked = this.checked;
+      availableSongCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+      });
+      updateSelectedCount();
     });
-    updateSelectedCount();
-  });
+  }
 
   // ===========================
   // INICIALIZAÇÃO

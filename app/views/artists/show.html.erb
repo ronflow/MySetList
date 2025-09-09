@@ -56,7 +56,7 @@
         <% if artist_set.set_tags.present? %>
           <% artist_set.set_tags.split(',').map(&:strip).each do |tag| %>
             <span style="background-color: #e9ecef; color: #495057; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: normal;">
-              🏷️ <%= tag %>
+              <%= tag %>
             </span>
           <% end %>
         <% end %>
@@ -71,7 +71,7 @@
       <%= link_to "Ver e Inserir via WEB", show_set_web_pub_artist_artist_set_path(@artist.id, artist_set.id), 
           role: "button", 
           style: "background-color: #17a2b8; color: white;" %>
-      <%= button_to "Duplicar", duplicate_artist_artist_set_path(@artist, artist_set), 
+      <!-- %= button_to "Duplicar", duplicate_artist_artist_set_path(@artist, artist_set), 
           method: :post,
           params: {},
           form: { style: "display: inline-block;" },
@@ -79,7 +79,7 @@
           data: { 
             confirm: "Duplicar setlist '#{artist_set.set_list_name}'?",
             turbo: false 
-          } %>
+          } % -->
     </div>
   </div>
 <% end %>

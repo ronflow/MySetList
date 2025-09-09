@@ -1,8 +1,8 @@
 class ArtistSet < ApplicationRecord
   belongs_to :artist
   has_many :artist_set_songs, dependent: :destroy
-  # ✅ USAR artist_songs através de artist_set_songs com artist_song_id
   has_many :artist_songs, through: :artist_set_songs
+  has_many :songs, through: :artist_songs
   
   # Validações
   validates :set_list_name, presence: true

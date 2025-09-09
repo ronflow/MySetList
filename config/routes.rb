@@ -88,6 +88,8 @@ Rails.application.routes.draw do
       get :lyrics           # Visualizar letra da relação artist-song
       get :edit_lyrics      # Formulário para editar letra
       patch :update_lyrics  # Salvar alterações na letra
+      get :edit_media       # Formulário para editar mídia (duração, arquivos)
+      patch :update_media           # Salvar alterações na mídia
     end
   end
   
