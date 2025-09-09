@@ -88,6 +88,8 @@ Rails.application.routes.draw do
       get :lyrics           # Visualizar letra da relação artist-song
       get :edit_lyrics      # Formulário para editar letra
       patch :update_lyrics  # Salvar alterações na letra
+      get :edit_media       # Formulário para editar mídia (duração, arquivos)
+      patch :update_media           # Salvar alterações na mídia
     end
   end
   
@@ -110,6 +112,10 @@ Rails.application.routes.draw do
         get :show_set_web_pub    # Visualização web para busca externa
         post :buscar_musicbrainz # Buscar músicas no MusicBrainz
         post :adicionar_musicas_web # Adicionar músicas do MusicBrainz
+
+        # ✅ NOVO: Gerar XML do setlist
+        get :generate_xml        # Gerar arquivo XML do setlist
+        post :duplicate          # Duplicar setlist
       end
       
       # Músicas específicas do set (artist_set_songs)
