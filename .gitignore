@@ -42,5 +42,6 @@
 
 # *.lock
 /config/database.yml
+/config/storage.yml
 
 
