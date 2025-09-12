@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Editar Letra - <%= @song&.name %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f8f9fa; }
+    .container { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 8px; padding: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .header { margin-bottom: 18px; border-bottom: 1px solid #e9ecef; padding-bottom: 14px; }
+    .header h1 { margin: 0 0 6px 0; color: #333; font-size: 28px; }
+    .song-info { color: #666; font-size: 15px; }
+    .textarea-container { margin-top: 18px; }
+    #letra-field { width: 100%; min-height: 60vh; padding: 18px; border: 1px solid #dee2e6; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 15px; line-height: 1.6; box-sizing: border-box; resize: vertical; }
+    #letra-field:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 0 4px rgba(0,86,179,0.06); }
+    .button-container { display:flex; gap:10px; margin-top:12px; align-items:center; }
+    .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block; }
+    .btn-success { background: #28a745; color: #fff; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .char-counter { text-align: right; color:#666; margin-top:8px; font-size:13px; }
+    .errors { background: #ffe6e6; color: #8b0000; padding:10px; border-radius:6px; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Editar Letra</h1>
+      <div class="song-info">
+        <strong><%= @song&.name || @artist_song&.song&.name %></strong>
+        <% if @song&.band.present? %> - <%= @song.band %><% end %>
+        <br>
+        <small>Artista: <%= @artist&.name || @artist_song&.artist&.name %></small>
+      </div>
+    </div>
+
+    <% if @artist_song.errors.any? %>
+      <div class="errors">
+        <strong>Erros:</strong>
+        <ul>
+          <% @artist_song.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @artist_song,
+                  url: update_letra_artist_song_path(@artist_song),
+                  method: :patch,
+                  local: true do |form| %>
+
+      <%# mantém referência ao set quando houver %>
+      <%= hidden_field_tag :set_id, @current_set.id if defined?(@current_set) && @current_set %>
+
+      <div class="textarea-container">
+        <%= form.label :letra, "Letra" %><br>
+        <%= form.text_area :letra,
+              id: "letra-field",
+              placeholder: "Cole a letra aqui...\n\n[Verso 1]\nLetra...\n\n[Refrão]\nLetra...",
+              rows: 20 %>
+
+        <div class="char-counter">
+          <span id="char-count">0</span> caracteres
+        </div>
+      </div>
+
+      <div class="button-container">
+        <%= form.submit "Salvar", class: "btn btn-success" %>
+
+        <% if defined?(@current_set) && @current_set %>
+          <%= link_to "Cancelar", show_sets_pub_artist_artist_set_path(@artist_song.artist, @current_set), class: "btn btn-secondary" %>
+        <% else %>
+          <%= link_to "Cancelar", artist_path(@artist_song.artist), class: "btn btn-secondary" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const textarea = document.getElementById('letra-field');
+      const charCount = document.getElementById('char-count');
+      if (!textarea || !charCount) return;
+
+      function updateCharCount() {
+        const count = textarea.value.length;
+        charCount.textContent = count.toLocaleString();
+      }
+
+      textarea.addEventListener('input', updateCharCount);
+      updateCharCount();
+      textarea.focus();
+
+      // Atalho Ctrl+S / Cmd+S para salvar
+      document.addEventListener('keydown', function(e) {
+        const isSave = (e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S');
+        if (isSave) {
+          e.preventDefault();
+          const form = document.querySelector('form');
+          if (form) form.submit();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

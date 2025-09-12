@@ -36,4 +36,22 @@ class ArtistSong < ApplicationRecord
   # Scope para músicas com arquivos de mídia
   scope :com_video, -> { where.not(nome_arquivo_video: [nil, '']) }
   scope :com_som, -> { where.not(nome_arquivo_som: [nil, '']) }
+
+  after_save :propagate_letra_to_song, if: :saved_change_to_letra?
+
+  private
+
+  def propagate_letra_to_song
+    begin
+      text = letra.to_s.strip
+      return if text.blank?
+      return unless song.present? && song.respond_to?(:lyrics)
+      # Atualiza apenas se lyrics estiver vazio/null — operação feita no nível SQL para ser atômica
+      updated_count = Song.where(id: song.id).where("lyrics IS NULL OR lyrics = ''").update_all(lyrics: text)
+      Rails.logger.info "➡️ Copiada letra de ArtistSong##{id} para Song##{song.id}.lyrics" if updated_count.to_i > 0
+    rescue => e
+      Rails.logger.warn "Falha ao propagar letra para Song##{song&.id}: #{e.message}"
+      # não re-lançar para não interromper o fluxo de salvar ArtistSong
+    end
+  end
 end

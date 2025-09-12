@@ -1,4 +1,3 @@
-<!-- filepath: app/views/events/_form.html.erb -->
 <%= form_with(model: event) do |form| %>
   <% if event.errors.any? %>
     <div style="color: red">
@@ -14,6 +13,13 @@
   <div>
     <%= form.label :Data_do_Evento, style: "display: block" %>
     <%= form.date_field :event_date %>
+  </div>
+
+  <br>
+
+  <div>
+    <%= form.label :Descrição, style: "display: block" %>
+    <%= form.text_field :description %>
   </div>
 
   <% 
@@ -57,10 +63,18 @@
 
   <br>
 
-  <div>
-    <%= form.label :Descrição, style: "display: block" %>
-    <%= form.text_field :description %>
+  <div class="form-group">
+    <label for="set_tag_search"><strong>Filtrar sets por tags</strong></label>
+
+    <!-- Campo de busca por tags (filtra os sets carregados no container acima) -->
+    <input type="text" id="set_tag_search" class="form-control"
+          placeholder="Buscar por tags (ex: classic, acústico, natal)" style="margin-top:8px;">
+    <small class="form-text text-muted">
+      Filtre a lista de sets por tags separadas por vírgula. A filtragem é feita no navegador.
+    </small>
   </div>
+
+  <br>
 
   <div>
     <%= form.submit %>
@@ -68,145 +82,149 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Tentar diferentes possibilidades de ID
+    // Elementos principais
     const artistSelect = document.getElementById('event_artist_id') || 
-                        document.querySelector('select[name="event[artist_id]"]') ||
-                        document.getElementById('artist_select');
-    
-    console.log('Artist select encontrado:', artistSelect);
-    
+                         document.querySelector('select[name="event[artist_id]"]') ||
+                         document.getElementById('artist_select');
+    const targetContainer = document.getElementById('artist-sets-checkboxes');
+    const selectedScript = document.getElementById('selected-artist-sets');
+    const tagInput = document.getElementById('set_tag_search');
+
     if (!artistSelect) {
-      console.error('Select do artist não encontrado!');
-      console.log('Todos os selects na página:', document.querySelectorAll('select'));
+      console.error('Select do artist não encontrado! Todos os selects na página:', document.querySelectorAll('select'));
       return;
     }
-    
-    // Obter sets já selecionados (para edição)
-    function getSelectedArtistSets() {
-      const scriptElement = document.getElementById('selected-artist-sets');
-      if (scriptElement) {
-        try {
-          return JSON.parse(scriptElement.textContent);
-        } catch (e) {
-          console.error('Erro ao parsear sets selecionados:', e);
-          return [];
-        }
-      }
-      return [];
+    if (!targetContainer) {
+      console.error('Container de sets não encontrado!');
+      return;
     }
-    
+
+    // Parse sets selecionados (edição)
+    function getSelectedArtistSets() {
+      if (!selectedScript) return [];
+      try {
+        return JSON.parse(selectedScript.textContent || '[]').map(Number);
+      } catch (e) {
+        console.error('Erro ao parsear sets selecionados:', e);
+        return [];
+      }
+    }
     const selectedSets = getSelectedArtistSets();
-    console.log('Sets já selecionados:', selectedSets);
-    
+
+    // Função para montar um item de set com data-tags
+    function createSetCheckbox(set) {
+      const checkboxDiv = document.createElement('div');
+      checkboxDiv.style.margin = '5px 0';
+      checkboxDiv.className = 'artist-set-item';
+      const tags = (set.set_tags || '').toString();
+      checkboxDiv.dataset.tags = tags.toLowerCase();
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.name = 'event[artist_set_ids][]';
+      checkbox.value = set.id;
+      checkbox.id = `event_artist_set_ids_${set.id}`;
+      checkbox.style.marginRight = '5px';
+
+      if (selectedSets.includes(Number(set.id))) {
+        checkbox.checked = true;
+      }
+
+      const label = document.createElement('label');
+      label.textContent = set.set_list_name || set.name || `Set ${set.id}`;
+      label.setAttribute('for', checkbox.id);
+      label.style.cursor = 'pointer';
+
+      // Mostrar tags ao lado do nome (se existirem)
+      if (tags) {
+        const small = document.createElement('small');
+        small.style.color = '#666';
+        small.style.marginLeft = '6px';
+        small.textContent = `(${tags})`;
+        checkboxDiv.appendChild(checkbox);
+        checkboxDiv.appendChild(label);
+        checkboxDiv.appendChild(small);
+      } else {
+        checkboxDiv.appendChild(checkbox);
+        checkboxDiv.appendChild(label);
+      }
+
+      return checkboxDiv;
+    }
+
+    // Carrega sets do artist via JSON e popula targetContainer
     function loadArtistSets(artistId) {
-      const targetContainer = document.getElementById('artist-sets-checkboxes');
-      
-      if (!targetContainer) {
-        console.error('Container de sets não encontrado!');
+      targetContainer.innerHTML = 'Carregando sets...';
+
+      if (!artistId) {
+        targetContainer.innerHTML = '<p style="color: gray; font-style: italic;">Selecione um artist para ver os sets disponíveis.</p>';
         return;
       }
-      
-      // Limpar sets existentes (mas manter o script com dados)
-      const existingScript = document.getElementById('selected-artist-sets');
-      targetContainer.innerHTML = 'Carregando sets...';
-      if (existingScript) {
-        targetContainer.appendChild(existingScript);
-      }
-      
-      if (artistId) {
-        const url = `/artists/${artistId}/artist_sets.json`;
-        console.log('Fazendo fetch para:', url);
-        
-        fetch(url, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
-        .then(response => {
-          console.log('Response status:', response.status);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          return response.json();
-        })
-        .then(data => {
-          console.log('Dados recebidos:', data);
-          
-          // Limpar container mas manter script
-          targetContainer.innerHTML = '';
-          if (existingScript) {
-            targetContainer.appendChild(existingScript);
-          }
-          
-          if (data && Array.isArray(data) && data.length > 0) {
-            data.forEach(set => {
-              const checkboxDiv = document.createElement('div');
-              checkboxDiv.style.margin = '5px 0';
-              
-              const checkbox = document.createElement('input');
-              checkbox.type = 'checkbox';
-              checkbox.name = 'event[artist_set_ids][]';
-              checkbox.value = set.id;
-              checkbox.id = `event_artist_set_ids_${set.id}`;
-              checkbox.style.marginRight = '5px';
-              
-              // IMPORTANTE: Verificar se este set já estava selecionado
-              if (selectedSets.includes(parseInt(set.id))) {
-                checkbox.checked = true;
-                console.log(`Set ${set.set_list_name} marcado como selecionado`);
-              }
-              
-              const label = document.createElement('label');
-              label.textContent = set.set_list_name || set.name || `Set ${set.id}`;
-              label.setAttribute('for', checkbox.id);
-              label.style.cursor = 'pointer';
-              
-              checkboxDiv.appendChild(checkbox);
-              checkboxDiv.appendChild(label);
-              targetContainer.appendChild(checkboxDiv);
-            });
-          } else {
-            const noSetsMsg = document.createElement('p');
-            noSetsMsg.textContent = 'Este artist não possui sets cadastrados.';
-            noSetsMsg.style.color = 'gray';
-            noSetsMsg.style.fontStyle = 'italic';
-            targetContainer.appendChild(noSetsMsg);
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao carregar sets:', error);
-          targetContainer.innerHTML = `<p style="color: red;">Erro ao carregar sets: ${error.message}</p>`;
-          if (existingScript) {
-            targetContainer.appendChild(existingScript);
-          }
-        });
-      } else {
-        const selectMsg = document.createElement('p');
-        selectMsg.textContent = 'Selecione um artist para ver os sets disponíveis.';
-        selectMsg.style.color = 'gray';
-        selectMsg.style.fontStyle = 'italic';
-        targetContainer.appendChild(selectMsg);
-        if (existingScript) {
-          targetContainer.appendChild(existingScript);
+
+      const url = `/artists/${artistId}/artist_sets.json`;
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
         }
-      }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        targetContainer.innerHTML = '';
+        if (Array.isArray(data) && data.length > 0) {
+          data.forEach(set => {
+            const node = createSetCheckbox(set);
+            targetContainer.appendChild(node);
+          });
+          // Aplica filtro atual (se houver texto no campo)
+          applyTagFilter();
+        } else {
+          targetContainer.innerHTML = '<p style="color: gray; font-style: italic;">Este artist não possui sets cadastrados.</p>';
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar sets:', error);
+        targetContainer.innerHTML = `<p style="color: red;">Erro ao carregar sets: ${error.message}</p>`;
+      });
     }
-    
-    // Carregar sets do artist inicial
+
+    // Filtragem por tags: atua sobre itens em #artist-sets-checkboxes
+    function applyTagFilter() {
+      const q = (tagInput && tagInput.value.trim().toLowerCase()) || '';
+      const terms = q.split(',').map(s => s.trim()).filter(Boolean);
+      const items = Array.from(targetContainer.querySelectorAll('.artist-set-item'));
+      items.forEach(item => {
+        if (terms.length === 0) {
+          item.style.display = '';
+          return;
+        }
+        const tags = (item.dataset.tags || '').toLowerCase();
+        const labelText = (item.textContent || '').toLowerCase();
+        const matches = terms.every(t => tags.includes(t) || labelText.includes(t));
+        item.style.display = matches ? '' : 'none';
+      });
+    }
+
+    // Inicializa: carrega sets do artist atual (se houver)
     if (artistSelect.value) {
       loadArtistSets(artistSelect.value);
     }
-    
-    // Event listener para mudanças no artist
+
+    // Listener para mudança de artist
     artistSelect.addEventListener('change', function() {
-      console.log('Artist mudou para:', this.value);
       loadArtistSets(this.value);
     });
+
+    // Listener para input de tags (filtra os itens já renderizados)
+    if (tagInput) {
+      tagInput.addEventListener('input', function() {
+        applyTagFilter();
+      });
+    }
   });
   </script>
 <% end %>
