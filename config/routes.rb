@@ -85,11 +85,11 @@ Rails.application.routes.draw do
   resources :artist_songs, only: [:index, :show, :edit, :update] do
     member do
       # Gerenciamento de letras específicas por artist-song
-      get :lyrics           # Visualizar letra da relação artist-song
-      get :edit_lyrics      # Formulário para editar letra
-      patch :update_lyrics  # Salvar alterações na letra
-      get :edit_media       # Formulário para editar mídia (duração, arquivos)
-      patch :update_media           # Salvar alterações na mídia
+      get :letra           # Visualizar letra da relação artist-song
+      get :edit_letra      # Formulário para editar letra
+      patch :update_letra  # Salvar alterações na letra
+      get :edit_musica       # Formulário para editar mídia (duração, arquivos)
+      patch :update_musica           # Salvar alterações na mídia
     end
   end
   

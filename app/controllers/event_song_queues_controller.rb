@@ -25,6 +25,7 @@ class EventSongQueuesController < ApplicationController
       performer_id: performer.id,
       position: position
     )
+    Rails.logger.info "position: #{position}"
     redirect_to showpublico_event_path(@event), notice: "Artista e Música Incluídos na FILA"
   end
   

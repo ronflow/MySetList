@@ -23,23 +23,10 @@
 
 <!-- ✅ BUSCA POR NOME DE SETLIST -->
 <%= form_with url: artist_path(@artist), method: :get, local: true do %>
-    <%= label_tag :query, "Buscar Sets" %>
+    <%= label_tag :query, "Buscar Setlist" %>
     <%= text_field_tag :query, params[:query] %>
-    <%= submit_tag "Filtrar Sets", 
+    <%= submit_tag "Filtrar Setlists", 
         role: "button" %>
-<% end %>
-
-<!-- ✅ NOVA: BUSCA POR TAGS -->
-<%= form_with url: artist_path(@artist), method: :get, local: true, style: "margin-top: 10px;" do %>
-    <%= label_tag :search_tags, "Buscar por Tags" %>
-    <%= text_field_tag :search_tags, params[:search_tags], 
-        placeholder: "Ex: rock, acústico, festa" %>
-    <%= submit_tag "Buscar Tags", 
-        role: "button" %>
-    <% if params[:search_tags].present? %>
-      <%= link_to "Limpar", artist_path(@artist), 
-          style: "margin-left: 10px; color: #666; text-decoration: none;" %>
-    <% end %>
 <% end %>
 
 <br>

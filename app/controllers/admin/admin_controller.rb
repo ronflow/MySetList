@@ -154,28 +154,13 @@ module Admin
     # GET /admin/preview_pdf/:event_id
     # Preview do setlist como imagem JPG
     def preview_pdf
-      # Sincroniza e regenera PDF
       sync_queue_order_from_frontend
       generate_setlist_pdf(@event)
       
       pdf_path = Rails.root.join('tmp', "setlist_#{@event.id}.pdf")
       
-      # Converte PDF para imagem para preview
-      image_path = Rails.root.join('tmp', "setlist_#{@event.id}.jpg")
-      Rails.logger.info "🖼️ IMAGEM GERADA em: #{image_path}"
-      
-      begin
-        # Usa MiniMagick para conversão PDF → JPG
-        #image = MiniMagick::Image.open(pdf_path.to_s)
-        #image.format "jpg"
-        #image.write(image_path.to_s)
-        
-        # Exibe imagem inline no navegador
-        send_file image_path, type: 'image/jpeg', disposition: 'inline'
-      rescue => e
-        Rails.logger.error "❌ Erro ao gerar imagem: #{e.message}"
-        head :internal_server_error
-      end
+      # Envia PDF direto para o iframe
+      send_file pdf_path, type: 'application/pdf', disposition: 'inline'
     end
 
     # =========================

@@ -92,34 +92,30 @@ class ArtistSetsController < ApplicationController
     @artist_set_song_relations = @artist_set.artist_set_songs
                                            .includes(artist_song: :song)
                                            .order(:created_at)
-    
+
     @songs = @artist_set_song_relations.map { |rel| rel.artist_song&.song }.compact
-    
-    # Filtro de busca no set
+
+    # Precarrega mapa de artist_songs para evitar N+1 nas views
+    @artist_songs_map = @artist.artist_songs.where(song_id: @songs.map(&:id)).index_by(&:song_id)
+    # Lista de ids para checks rápidos (usada pela view para determinar 'is_in_set')
+    @song_ids_in_set = @songs.map(&:id)
+
+    # Filtro de busca no set (operando em array carregado)
     if params[:search_set].present?
       search_term = params[:search_set].downcase
-      @songs = @songs.select do |song| 
-        song.name.downcase.include?(search_term) || 
-        song.band.downcase.include?(search_term) 
+      @songs = @songs.select do |song|
+        song.name.to_s.downcase.include?(search_term) ||
+        song.band.to_s.downcase.include?(search_term)
       end
     end
-    
-    # Busca TODAS as músicas da tabela songs
-    if params[:query].present?
-      # Se há busca específica, filtra por nome ou banda
-      search_term = "%#{params[:query]}%"
-      @all_songs = Song.where("name ILIKE ? OR band ILIKE ?", search_term, search_term)
-                      .order(:name)
-                      .limit(500) # Limita para performance
-    else
-      # Se não há busca, mostra todas as músicas ordenadas por nome
-      @all_songs = Song.all.order(:name).limit(500) # Limita para performance
-    end
-    
-    # Para debug - verificar se as músicas estão sendo carregadas
+
+    # Carrega todas as músicas disponíveis (usa método helper para consistência)
+    @all_songs = build_available_songs_query
+
+    # Logs para debug
     Rails.logger.info "🎵 Total de músicas no banco: #{Song.count}"
-    Rails.logger.info "🎵 Músicas carregadas para exibição: #{@all_songs.count}"
-    Rails.logger.info "🎵 Primeiras 5 músicas: #{@all_songs.limit(5).pluck(:name).join(', ')}"
+    Rails.logger.info "🎵 Músicas no set carregadas: #{@songs.count}"
+    Rails.logger.info "🎵 Músicas carregadas para exibição (all_songs): #{@all_songs.count}"
   end
 
   def adicionar_musicas
@@ -200,6 +196,12 @@ class ArtistSetsController < ApplicationController
 
   def show_set_web_pub
     @songs = @artist_set.songs.distinct
+
+    #Precarrega artist_songs relacionados e cria um hash para lookup (evita N+1)
+    @artist_songs_map = @artist.artist_songs.where(song_id: @songs.map(&:id)).index_by(&:song_id)
+    # ✅ ADICIONADO: lista de ids para checks rápidos usada nas views
+    @song_ids_in_set = @songs.map(&:id)
+
     
     # Cache com namespace específico
     cache_key = session[:musicbrainz_cache_key]
