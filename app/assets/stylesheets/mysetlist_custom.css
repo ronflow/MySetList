@@ -57,8 +57,8 @@ button[data-confirm] {
 .btn-danger:hover,
 .button-danger:hover,
 button[data-confirm]:hover {
-  background-color: #c82333 !important;
-  border-color: #c82333 !important;
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
 }
 
 /* Botões de sucesso (verde) */

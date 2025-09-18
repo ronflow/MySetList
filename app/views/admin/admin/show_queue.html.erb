@@ -1,328 +1,214 @@
-<!-- filepath: c:\DEV\MySetList\app\views\admin\admin\show_queue.html.erb -->
-<div class="container mx-auto px-4 py-8">
-  <div style="zoom: 50%;">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Fila do Evento <%= @event.description %></h1>
-      <%= link_to "Voltar para Admin", admin_root_path, 
-          role: "button" %>
-    </div>
-    <hr>
-    <div class="mb-4">
-      <!-- Botão para pré-visualizar impressão do setlist -->
-      <%= link_to "Pré-visualizar impressão do Setlist", 
-          admin_imprimir_setlist_path(event_id: @event.id), 
-          role: "button" %>
 
-      <br>
+<div class="container mx-auto px-4 py-8"> 
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Fila do Evento <%= @event.description %></h1>
+    <%= link_to "Voltar para Admin", admin_root_path, role: "button" %>
+  </div>
+
+  <hr>
+
+  <div class="mb-4">
+      <!-- Botão para pré-visualizar impressão do setlist -->
+    <%= link_to "Pré-visualizar impressão do Setlist", 
+      admin_imprimir_setlist_path(event_id: @event.id), 
+      role: "button" %>
+
+    <br>
 
       <!-- BOTÃO PARA IMPRIMIR LETRAS -->
-      <%= link_to "Imprimir Letras das Músicas", 
-          admin_imprimir_song_lyrics_path(event_id: @event.id), 
-          role: "button", 
-          class: "btn btn-secondary" %>
-    </div>
-    <table>
+    <%= link_to "Imprimir Letras das Músicas", 
+      admin_imprimir_song_lyrics_path(event_id: @event.id), 
+      role: "button", 
+      class: "btn btn-secondary" %>
+  </div>
+
+  <hr>
+
+<div style="zoom: 75%;">    
+  <table>
+    <thead>
+      <tr>
+        <th>Scr</th>
+        <th>
+          <h2 class="text-xl font-bold mb-2">Fila (Visíveis)</h2>
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th style="width:40px;">POS</th>
+                <th style="width:80px;">Música</th>
+                <th>Cantor</th>
+                <th style="width:120px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="queue-table-body">
+              <% @visible_queues.each do |queue| %>
+                <% Rails.logger.debug "VISIBLE_QUEUE id=#{queue.id} db_pos=#{queue.position} performer=#{queue.performer&.name}" %>
+                <tr data-id="<%= queue.id %>">
+                  <!-- posição visual (será recalculada após drag / inserção) -->
+                  <td class="queue-position"><%= queue.position %></td>
+                  <td><%= queue.song.name %></td>
+                  <td><%= queue.performer&.name || "Não informado" %></td>
+                  <td>
+                    <%= button_to "Ocultar",
+                        hide_event_event_song_queue_path(@event, queue),
+                        method: :patch,
+                        data: { turbo_confirm: "Ocultar este item da fila?" },
+                        class: "text-red-600 hover:text-red-900" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </th>
+      </tr>
+    </thead>
+  </table>
+</div>
+
+    <h2 class="text-xl font-bold mt-8 mb-2">Itens Ocultos</h2>
+    <table class="min-w-full divide-y divide-gray-200">
       <thead>
         <tr>
-          <th>Scroll</th>
-          <th> 
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th>Posição</th>
-                  <th>Músicas</th>
-                  <th>Cantor</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="queue-table-body">
-                <% @visible_queues.each do |queue| %>
-                 <!-- ✅ LOG DETALHADO DE CADA QUEUE VISÍVEL -->
-                 <% Rails.logger.error "📋 VISIBLE QUEUE: Queue ID: #{queue.id} | Event ID: #{queue.event_id} | Song ID: #{queue.song_id} | Song Name: '#{queue.song.name}' | Position: #{queue.position} | Hidden: #{queue.hidden.inspect}" %>
-                  <tr data-id="<%= queue.id %>">
-                    <td><%= queue.position %></td>
-                    <td><%= queue.song.name %></td>
-                    <td>
-                      <% if queue.performer_id.present? %>
-                        <%= Performer.find_by(id: queue.performer_id)&.name || "Performer ##{queue.performer_id}" %>
-                      <% else %>
-                        <span style="color: #666;">Não informado</span>
-                      <% end %>
-                    </td>
-                    <td>
-                      <%= button_to "Ocultar",
-                          hide_event_event_song_queue_path(@event, queue),
-                          method: :patch,
-                          data: { turbo_confirm: "Are you sure you want to hide this song from the queue?" },
-                          class: "text-red-600 hover:text-red-900" %>
-                    </td> 
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-            <!-- Lista de itens ocultos -->
-            <h2 class="text-xl font-bold mt-8 mb-2">Itens Ocultos</h2>
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th>Posição</th>
-                  <th>Músicas</th>
-                  <th>Cantor</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% @hidden_queues.each do |queue| %>
-                  <tr data-id="<%= queue.id %>">
-                    <td><%= queue.position %></td>
-                    <td><%= queue.song.name %></td>
-                    <td>
-                      <% if queue.performer_id.present? %>
-                        <%= Performer.find_by(id: queue.performer_id)&.name || "Performer ##{queue.performer_id}" %>
-                      <% else %>
-                        <span style="color: #666;">Não informado</span>
-                      <% end %>
-                    </td>
-                    <td><span class="text-gray-400">Ocultado</span></td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </th>
+          <th style="width:80px;">Posição</th>
+          <th>Música</th>
+          <th>Cantor</th>
+          <th>Status</th>
         </tr>
       </thead>
+      <tbody>
+        <% @hidden_queues.each do |queue| %>
+          <tr>
+            <td><%= queue.position %></td>
+            <td><%= queue.song.name %></td>
+            <td><%= queue.performer&.name || "Não informado" %></td>
+            <td><span class="text-gray-400">Ocultado</span></td>
+          </tr>
+        <% end %>
+      </tbody>
     </table>
   </div>
-</div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const tbody = document.getElementById('queue-table-body');
-  const eventId = '<%= @event.id %>';
+        
+  const tbody      = document.getElementById('queue-table-body');
+  const eventId    = '<%= @event.id %>';
   const storageKey = `queue-order-${eventId}`;
-  
-  // ✅ NOVO: Pega ordem atual do banco de dados (DOM inicial)
-  function getCurrentDOMOrder() {
-    const rows = tbody.querySelectorAll('tr[data-id]');
-    return Array.from(rows).map(row => parseInt(row.dataset.id));
+
+  function currentIds() {
+    return Array.from(tbody.querySelectorAll('tr[data-id]')).map(r => parseInt(r.dataset.id));
   }
-  
-  // ✅ Atualiza os números das posições visualmente
-  function updatePositions() {
-    const rows = tbody.querySelectorAll('tr[data-id]');
-    console.log('📊 Atualizando posições para', rows.length, 'linhas');
-    
-    rows.forEach((row, index) => {
-      const positionCell = row.querySelector('td:first-child');
-      const queueId = row.dataset.id;
-      const songName = row.querySelector('td:nth-child(2)').textContent;
-      
-      if (positionCell) {
-        const oldPosition = positionCell.textContent;
-        const newPosition = index + 1;
-        positionCell.textContent = newPosition;
-        
-        console.log(`🔄 Queue ${queueId} (${songName}): posição ${oldPosition} → ${newPosition}`);
-      }
+
+  function applyOrder(orderIds) {
+    const rowsMap = {};
+    tbody.querySelectorAll('tr[data-id]').forEach(r => rowsMap[r.dataset.id] = r);
+    orderIds.forEach(id => {
+      const row = rowsMap[id];
+      if (row) tbody.appendChild(row);
     });
   }
-  
-  // ✅ MODIFICADO: Só restaura se ordem salva for diferente da atual
-  function restoreOrder() {
-    const savedOrder = localStorage.getItem(storageKey);
-    const currentOrder = getCurrentDOMOrder();
-    
-    console.log('🏦 Ordem do banco (DOM inicial):', currentOrder);
-    console.log('💾 Ordem salva (localStorage):', savedOrder ? JSON.parse(savedOrder) : 'nenhuma');
-    
-    if (savedOrder) {
-      try {
-        const orderArray = JSON.parse(savedOrder);
-        
-        // ✅ VERIFICA se ordem salva é diferente da atual
-        const isOrderDifferent = JSON.stringify(orderArray) !== JSON.stringify(currentOrder);
-        
-        if (isOrderDifferent) {
-          console.log('🔄 Aplicando ordem salva (diferente do banco)');
-          
-          const rows = Array.from(tbody.querySelectorAll('tr[data-id]'));
-          
-          // Ordena as linhas conforme a ordem salva
-          orderArray.forEach((id, index) => {
-            const row = rows.find(r => r.dataset.id === id.toString());
-            if (row) {
-              tbody.appendChild(row);
-              console.log(`📌 Movendo Queue ${id} para posição visual ${index + 1}`);
-            }
-          });
-          
-          // ✅ Atualiza posições após restaurar ordem
-          updatePositions();
-          
-          // ✅ Sincroniza com o backend imediatamente
-          syncWithBackend(orderArray);
-        } else {
-          console.log('✅ Ordem salva igual à do banco - mantendo como está');
-          // ✅ Atualiza localStorage com ordem atual
-          localStorage.setItem(storageKey, JSON.stringify(currentOrder));
-        }
-      } catch(e) {
-        console.error('❌ Erro ao restaurar ordem:', e);
-        // ✅ Remove localStorage corrompido
-        localStorage.removeItem(storageKey);
-      }
-    } else {
-      console.log('📋 Nenhuma ordem salva - usando ordem do banco');
-      // ✅ Salva ordem atual do banco no localStorage
-      localStorage.setItem(storageKey, JSON.stringify(currentOrder));
+
+  function renumberVisual() {
+    Array.from(tbody.querySelectorAll('tr[data-id]')).forEach((row, idx) => {
+      const cell = row.querySelector('.queue-position');
+      if (cell) cell.textContent = idx + 1;
+    });
+  }
+
+  function saveOrder(orderIds) {
+    localStorage.setItem(storageKey, JSON.stringify(orderIds));
+    // Sincroniza backend (persistir posições reais)
+    fetch(`/admin/save_queue_order/${eventId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ order_ids: orderIds })
+    });
+  }
+
+  // Restaura ordem manual anterior e garante que novos itens (novos performers)
+  // SEMPRE sejam adicionados ao final.
+  function restoreOrInitialize() {
+    const idsNow = currentIds();           // ordem do DB (já ordenada por position)
+    const saved  = localStorage.getItem(storageKey);
+
+    if (!saved) {
+      // Primeira vez: salva ordem do DB
+      saveOrder(idsNow);
+      renumberVisual();
+      return;
     }
+
+    let savedIds;
+    try {
+      savedIds = JSON.parse(saved).map(Number).filter(Boolean);
+    } catch(e) {
+      localStorage.removeItem(storageKey);
+      saveOrder(idsNow);
+      renumberVisual();
+      return;
+    }
+
+    // Remove IDs que não existem mais (deletados)
+    savedIds = savedIds.filter(id => idsNow.includes(id));
+
+    // Detecta novos (presentes no DB mas não no saved) → append ao final
+    const newOnes = idsNow.filter(id => !savedIds.includes(id));
+    if (newOnes.length > 0) {
+      console.log('Novos itens detectados (append no fim):', newOnes);
+      savedIds = savedIds.concat(newOnes); // garante novo performer NO FIM
+    }
+
+    applyOrder(savedIds);
+    renumberVisual();
+    saveOrder(savedIds);
   }
-  
-  // ✅ Salva a ordem atual
-  function saveOrder() {
-    const rows = tbody.querySelectorAll('tr[data-id]');
-    const order = Array.from(rows).map(row => parseInt(row.dataset.id));
-    
-    console.log('💾 Salvando nova ordem:', order);
-    localStorage.setItem(storageKey, JSON.stringify(order));
-    
-    // ✅ Atualiza posições visualmente
-    updatePositions();
-    
-    // ✅ Sincroniza com o backend
-    syncWithBackend(order);
-  }
-  
-  // ✅ ROTA CORRETA: admin/events#save_queue_order  
-  function syncWithBackend(orderArray) {
-    return fetch(`/admin/save_queue_order/${eventId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      },
-      body: JSON.stringify({
-        order_ids: orderArray
-      })
-    });
-  }
-  
-  // ✅ NOVO: Função para resetar para ordem do banco
-  window.resetToDBOrder = function() {
-    console.log('🔄 Resetando para ordem do banco de dados...');
-    
-    // Remove localStorage
-    localStorage.removeItem(storageKey);
-    
-    // Recarrega a página para pegar ordem fresca do banco
-    location.reload();
-  };
-  
-  // ✅ Função global para sincronizar antes de gerar PDF
-  window.syncBeforePDF = function() {
-    console.log('🎵 Sincronizando ordem antes de gerar PDF...');
-    const rows = tbody.querySelectorAll('tr[data-id]');
-    const currentOrder = Array.from(rows).map(row => parseInt(row.dataset.id));
-    
-    // Salva no localStorage
-    localStorage.setItem(storageKey, JSON.stringify(currentOrder));
-    
-    // Sincroniza com backend
-    return fetch(`/admin/events/${eventId}/save_queue_order`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      },
-      body: JSON.stringify({
-        order_ids: currentOrder
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('📋 Sincronização para PDF concluída:', data);
-      return data.status === 'success';
-    });
-  };
-  
-  // ✅ Torna a tabela ordenável (drag & drop)
-  function makeSortable() {
-    let draggedRow = null;
-    
-    tbody.querySelectorAll('tr[data-id]').forEach(row => {
+
+  function enableDrag() {
+    let dragged = null;
+
+    function attach(row) {
       row.draggable = true;
       row.style.cursor = 'move';
-      
-      row.addEventListener('dragstart', function(e) {
-        draggedRow = this;
-        this.style.opacity = '0.5';
-        console.log('🖱️ Iniciando drag da Queue:', this.dataset.id);
+
+      row.addEventListener('dragstart', () => {
+        dragged = row;
+        row.style.opacity = '0.5';
       });
-      
-      row.addEventListener('dragend', function(e) {
-        this.style.opacity = '';
-        console.log('🖱️ Finalizando drag da Queue:', this.dataset.id);
-        draggedRow = null;
-        saveOrder(); // Salva a nova ordem E atualiza posições
+      row.addEventListener('dragend', () => {
+        row.style.opacity = '';
+        dragged = null;
+        const newOrder = currentIds();
+        renumberVisual();
+        saveOrder(newOrder);
       });
-      
-      row.addEventListener('dragover', function(e) {
+      row.addEventListener('dragover', e => e.preventDefault());
+      row.addEventListener('drop', e => {
         e.preventDefault();
+        if (!dragged || dragged === row) return;
+        const rect = row.getBoundingClientRect();
+        const before = e.clientY < rect.top + rect.height / 2;
+        if (before) tbody.insertBefore(dragged, row);
+        else tbody.insertBefore(dragged, row.nextSibling);
       });
-      
-      row.addEventListener('drop', function(e) {
-        e.preventDefault();
-        if (draggedRow && draggedRow !== this) {
-          const draggedSong = draggedRow.querySelector('td:nth-child(2)').textContent;
-          const targetSong = this.querySelector('td:nth-child(2)').textContent;
-          
-          console.log(`🔄 Drop: "${draggedSong}" sobre "${targetSong}"`);
-          
-          const rect = this.getBoundingClientRect();
-          const midpoint = rect.top + rect.height / 2;
-          
-          if (e.clientY < midpoint) {
-            tbody.insertBefore(draggedRow, this);
-            console.log('⬆️ Inserido ANTES');
-          } else {
-            tbody.insertBefore(draggedRow, this.nextSibling);
-            console.log('⬇️ Inserido DEPOIS');
-          }
-          
-          // ✅ Atualiza posições imediatamente após o drop
-          updatePositions();
-        }
-      });
-    });
-    
-    console.log('🖱️ Drag & Drop habilitado para', tbody.querySelectorAll('tr[data-id]').length, 'linhas');
+    }
+
+    tbody.querySelectorAll('tr[data-id]').forEach(attach);
   }
-  
-  // ✅ Inicializa com logs detalhados
-  console.log('🚀 Inicializando sistema de filas para Event ID:', eventId);
-  restoreOrder();
-  makeSortable();
-  
-  // ✅ Salva ordem antes de sair da página
-  window.addEventListener('beforeunload', saveOrder);
+
+  restoreOrInitialize();
+  enableDrag();
 });
 </script>
+
 <style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  th {
-    background-color: #f2f2f2;
-  }
-  tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  tr:hover {
-    background-color: #e2e8f0;
-  }
+  table { width:100%; border-collapse: collapse; }
+  th, td { border:1px solid #ddd; padding:6px 8px; }
+  th { background:#f5f5f5; }
+  tbody tr:nth-child(even){ background:#fafafa; }
+  tbody tr:hover { background:#eef; }
+  .queue-position { text-align:center; font-weight:600; }
+</style>

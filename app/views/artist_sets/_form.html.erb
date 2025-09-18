@@ -1,25 +1,42 @@
-<%= form_with(model: [@artist, artist_set], local: true) do |form| %>
-  <% if artist_set.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(artist_set.errors.count, "error") %> prohibited this artist_set from being saved:</h2>
-
+<!-- filepath: c:\DEV\MySetList\app\views\artist_sets\_form.html.erb -->
+<%= form_with(model: [@artist, @artist_set], local: true) do |form| %>
+  <% if @artist_set.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@artist_set.errors.count, "error") %> prohibited this artist_set from being saved:</h2>
       <ul>
-        <% artist_set.errors.full_messages.each do |message| %>
+        <% @artist_set.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
+  <!-- Nome do Setlist -->
   <div class="field">
-    <%= form.label :set_list_name, "Nome do Set:", style: "display: block" %>
-    <%= form.text_field :set_list_name, style: "width: 100%; padding: 8px; margin-top: 5px;" %>
+    <%= form.label :set_list_name, "Nome do Setlist" %>
+    <%= form.text_field :set_list_name, required: true %>
   </div>
 
-  <div class="actions" style="margin-top: 15px;">
-    <%= form.submit "Salvar Set", 
-        style: "background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;" %>
+  <!-- Descrição -->
+  <div class="field">
+    <%= form.label :description, "Descrição" %>
+    <%= form.text_area :description, rows: 4 %>
+  </div>
+
+  <!-- ✅ NOVO: Campo de Tags -->
+  <div class="field">
+    <%= form.label :set_tags, "Tags do Setlist" %>
+    <%= form.text_area :set_tags, 
+        placeholder: "Ex: rock, acústico, festa, balada, anos 80",
+        rows: 3,
+        style: "width: 100%;" %>
+    <small style="color: #666;">
+      💡 Use tags para categorizar seus setlists (ex: rock, acústico, festa, balada, anos 80)
+    </small>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Salvar Setlist", 
+        style: "background-color: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;" %>
   </div>
 <% end %>
-
-

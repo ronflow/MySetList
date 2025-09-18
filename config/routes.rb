@@ -41,15 +41,9 @@ Rails.application.routes.draw do
     end
     
     # Fila de músicas do evento (event_song_queues)
-    resources :event_song_queues do
-      member do
-        # Ocultar música específica da fila
-        patch :hide
-      end
-      collection do
-        # Reordenar toda a fila de músicas
-        post :reorder
-      end
+    resources :event_song_queues, only: [:index, :create, :destroy] do
+      member { patch :hide }
+      collection { post :reorder }
     end
     
     # Sets/grupos de músicas do evento
@@ -85,9 +79,11 @@ Rails.application.routes.draw do
   resources :artist_songs, only: [:index, :show, :edit, :update] do
     member do
       # Gerenciamento de letras específicas por artist-song
-      get :lyrics           # Visualizar letra da relação artist-song
-      get :edit_lyrics      # Formulário para editar letra
-      patch :update_lyrics  # Salvar alterações na letra
+      get :letra           # Visualizar letra da relação artist-song
+      get :edit_letra      # Formulário para editar letra
+      patch :update_letra  # Salvar alterações na letra
+      get :edit_musica       # Formulário para editar mídia (duração, arquivos)
+      patch :update_musica           # Salvar alterações na mídia
     end
   end
   
@@ -110,6 +106,10 @@ Rails.application.routes.draw do
         get :show_set_web_pub    # Visualização web para busca externa
         post :buscar_musicbrainz # Buscar músicas no MusicBrainz
         post :adicionar_musicas_web # Adicionar músicas do MusicBrainz
+
+        # ✅ NOVO: Gerar XML do setlist
+        get :generate_xml        # Gerar arquivo XML do setlist
+        post :duplicate          # Duplicar setlist
       end
       
       # Músicas específicas do set (artist_set_songs)

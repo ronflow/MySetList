@@ -1,0 +1,21 @@
+<h2><%= @artist_song.song.name %> - Letra</h2>
+
+<p><strong>Letra:</strong></p>
+<%= simple_format(@artist_song.letra) %>
+
+<div>
+  <%# Determina qual set é o "atual" (parâmetro tem prioridade, senão o mais recente do artista) %>
+  <% set = nil %>
+  <% if params[:set_id].present? %>
+    <% set = @artist_song.artist.artist_sets.find_by(id: params[:set_id]) rescue nil %>
+  <% end %>
+  <% set ||= @artist_song.artist.artist_sets.order(created_at: :desc).first %>
+
+  <% if set %>
+    <%= link_to "Voltar para o set '#{set.set_list_name}'", show_sets_pub_artist_artist_set_path(@artist_song.artist, set),
+        role: "button" %>
+  <% else %>
+    <%= link_to "Voltar para o artista", artist_path(@artist_song.artist),
+        role: "button" %>
+  <% end %>
+</div>

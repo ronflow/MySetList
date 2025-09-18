@@ -37,10 +37,9 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 
-
-
-
 # *.lock
 /config/database.yml
+/config/storage.yml
 
 
+/config/storage.yml

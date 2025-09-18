@@ -34,11 +34,11 @@
   <% end %>
 
   <div class="mb-4">
-    <%= link_to "🎭 Artistas", artists_path, 
+    <%= link_to "Artistas", artists_path, 
         role: "button" %>
 
     <% if @artist %>
-      <%= link_to "📅 Eventos", events_path(artist_id: @artist.id), 
+      <%= link_to "Eventos", events_path(artist_id: @artist.id), 
         role: "button" %>
     <% end %>
   </div>

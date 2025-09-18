@@ -1,33 +1,50 @@
 class ArtistSongsController < ApplicationController
-  before_action :set_artist_song, only: %i[ show edit update destroy ]
+  # ====================================================================
+  # CALLBACKS E FILTROS
+  # ====================================================================
+  before_action :set_artist_song, only: [
+    :show, :edit, :update, :destroy,
+    :letra, :edit_letra, :update_letra,
+    :edit_musica, :update_musica
+  ]
 
-  skip_before_action :authenticate_user!, only: [:lyrics]
+  # A página de visualização da letra é pública
+  skip_before_action :authenticate_user!, only: [:letra]
 
-  # GET /artist_songs or /artist_songs.json
+  # Verifica propriedade para ações de edição/remoção
+  before_action :check_owner, only: [
+    :edit, :update, :destroy,
+    :edit_letra, :update_letra,
+    :edit_musica, :update_musica
+  ]
+
+  # ====================================================================
+  # AÇÕES CRUD
+  # ====================================================================
   def index
-    @artist_songs = ArtistSong.all
+    @artist_songs = ArtistSong.includes(:song, :artist).all
   end
 
-  # GET /artist_songs/1 or /artist_songs/1.json
+  # Por compatibilidade com usos atuais: manter show (pode renderizar letra)
   def show
+    # Se desejar comportamento distinto, altere para render :show
+    render :letra
   end
 
-  # GET /artist_songs/new
   def new
     @artist_song = ArtistSong.new
   end
 
-  # GET /artist_songs/1/edit
   def edit
+    # @artist_song carregado em set_artist_song
   end
 
-  # POST /artist_songs or /artist_songs.json
   def create
     @artist_song = ArtistSong.new(artist_song_params)
 
     respond_to do |format|
       if @artist_song.save
-        format.html { redirect_to @artist_song, notice: "Artist song was successfully created." }
+        format.html { redirect_to @artist_song, notice: "Música adicionada ao repertório com sucesso." }
         format.json { render :show, status: :created, location: @artist_song }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -36,11 +53,10 @@ class ArtistSongsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /artist_songs/1 or /artist_songs/1.json
   def update
     respond_to do |format|
       if @artist_song.update(artist_song_params)
-        format.html { redirect_to @artist_song, notice: "Artist song was successfully updated." }
+        format.html { redirect_to @artist_song, notice: "Música atualizada com sucesso." }
         format.json { render :show, status: :ok, location: @artist_song }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -49,85 +65,141 @@ class ArtistSongsController < ApplicationController
     end
   end
 
-  # DELETE /artist_songs/1 or /artist_songs/1.json
   def destroy
+    artist_name = @artist_song.artist.name
+    song_name = @artist_song.song.name
     @artist_song.destroy!
-
     respond_to do |format|
-      format.html { redirect_to artist_songs_path, status: :see_other, notice: "Artist song was successfully destroyed." }
+      format.html { redirect_to artist_path(@artist_song.artist), notice: "Música '#{song_name}' removida do repertório de #{artist_name}." }
       format.json { head :no_content }
     end
   end
 
-  def lyrics
-    @artist_song = ArtistSong.find(params[:id])
-  end
-
-  def edit_lyrics
-    @artist_song = ArtistSong.find(params[:id])
+  # ====================================================================
+  # VISUALIZAÇÃO PÚBLICA DE LETRAS
+  # GET /artist_songs/:id/letra
+  # ====================================================================
+  def letra
+    # @artist_song já carregado em set_artist_song (com includes)
     @artist = @artist_song.artist
     @song = @artist_song.song
-
-    # Verificar se este artist_song pertence ao artist correto
-    unless @artist_song.artist_id == @artist.id
-      redirect_to artist_path(@artist), alert: 'Acesso negado!'
-      return
-    end
-    
-    # Encontrar o set atual para retorno
-    @current_set = find_current_set
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path, alert: "Música não encontrada."
   end
 
-  def update_lyrics
-    @artist_song = ArtistSong.find(params[:id])
+  # ====================================================================
+  # EDIÇÃO / ATUALIZAÇÃO DE LETRA
+  # GET /artist_songs/:id/edit_letra
+  # PATCH /artist_songs/:id/update_letra
+  # ====================================================================
+  def edit_letra
+    @artist = @artist_song.artist
+    @song = @artist_song.song
+    @current_set = find_current_set
+    Rails.logger.info "📝 Editando letra de: #{@song.name} - #{@artist.name}"
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path, alert: "Música não encontrada."
+  end
 
-    # Verificar se este artist_song pertence ao artist correto
-    unless @artist_song.artist_id == @artist_song.artist.id
-      redirect_to artist_path(@artist_song.artist), alert: 'Acesso negado!'
-      return
-    end
-
+  def update_letra
+    @artist = @artist_song.artist
     @current_set = find_current_set
 
-    # Limpar quebras de linha antes de salvar
-    cleaned_params = artist_song_params
-    if cleaned_params[:letra].present?
-      cleaned_params[:letra] = cleaned_params[:letra]
-        .gsub(/\r\n/, "\n")  # Windows para Unix
-        .gsub(/\r/, "\n")    # Mac clássico para Unix
+    cleaned = letra_params.to_h
+    if cleaned['letra'].present?
+      cleaned['letra'] = cleaned['letra'].gsub(/\r\n/, "\n").gsub(/\r/, "\n")
     end
-    
-    if @artist_song.update(cleaned_params)
+
+    if @artist_song.update(cleaned)
+      Rails.logger.info "✅ Letra atualizada: #{@artist_song.song.name}"
       if @current_set
-        redirect_to show_sets_pub_artist_artist_set_path(@artist_song.artist, @current_set), 
-                    notice: 'Letra atualizada com sucesso!'
+        redirect_to show_sets_pub_artist_artist_set_path(@artist, @current_set), notice: 'Letra atualizada com sucesso!'
       else
-        redirect_to artist_path(@artist_song.artist), 
-                    notice: 'Letra atualizada com sucesso!'
+        redirect_to artist_path(@artist), notice: 'Letra atualizada com sucesso!'
       end
     else
-      render :edit_lyrics
+      Rails.logger.error "❌ Erro ao atualizar letra: #{@artist_song.errors.full_messages}"
+      render :edit_letra, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path, alert: "Música não encontrada."
+  end
+
+  # ====================================================================
+  # EDIÇÃO / ATUALIZAÇÃO DE MÍDIA
+  # GET /artist_songs/:id/edit_musica
+  # PATCH /artist_songs/:id/update_musica
+  # ====================================================================
+  def edit_musica
+    @artist = @artist_song.artist
+    @song = @artist_song.song
+    Rails.logger.info "🎵 Editando mídia de: #{@song.name} - #{@artist.name}"
+  end
+
+  def update_musica
+    Rails.logger.info "🎵 Atualizando mídia: #{media_params.inspect}"
+
+    if @artist_song.update(media_params)
+      Rails.logger.info "✅ Mídia atualizada para: #{@artist_song.song.name}"
+
+      if params[:set_id].present?
+        current_set = @artist_song.artist.artist_sets.find_by(id: params[:set_id])
+        if current_set
+          redirect_to show_sets_pub_artist_artist_set_path(@artist_song.artist, current_set), notice: 'Informações de mídia atualizadas com sucesso!'
+          return
+        end
+      end
+
+      redirect_to @artist_song, notice: 'Informações de mídia atualizadas com sucesso!'
+    else
+      Rails.logger.error "❌ Erro ao atualizar mídia: #{@artist_song.errors.full_messages}"
+      render :edit_musica, status: :unprocessable_entity
     end
   end
-  
+
   private
-  # Use callbacks to share common setup or constraints between actions.
+
+  # Carrega artist_song com includes para performance
   def set_artist_song
-    @artist_song = ArtistSong.find(params.expect(:id))
+    @artist_song = ArtistSong.includes(:song, :artist).find(params[:id])
+    Rails.logger.info "🎵 ArtistSong carregado: ID #{@artist_song.id} - #{@artist_song.song.name}"
+  rescue ActiveRecord::RecordNotFound
+    Rails.logger.error "❌ ArtistSong não encontrado: ID #{params[:id]}"
+    redirect_to root_path, alert: "Música não encontrada."
+  end
+
+  def check_owner
+    unless current_user == @artist_song.artist.user
+      Rails.logger.error "❌ Usuário sem permissão: #{current_user&.id} vs #{@artist_song.artist.user.id}"
+      redirect_to root_path, alert: "Sem permissão para esta ação."
+    end
   end
 
   def find_current_set
-    # Buscar set através de parâmetros primeiro
     if params[:set_id].present?
-      return @artist_song.artist.artist_sets.find_by(id: params[:set_id])
+      set = @artist_song.artist.artist_sets.find_by(id: params[:set_id])
+      return set if set
     end
-    
-    # Se não encontrar, retornar o último set do artist
     @artist_song.artist.artist_sets.order(created_at: :desc).first
   end
 
-  # Only allow a list of trusted parameters through.
   def artist_song_params
-    params.expect(artist_song: [ :artist_id, :song_id, :letra ])
+    params.require(:artist_song).permit(
+      :artist_id,
+      :song_id,
+      :letra,
+      :duracao,
+      :nome_arquivo_video,
+      :nome_arquivo_som
+    )
+  end
+
+  def letra_params
+    params.require(:artist_song).permit(:letra)
+  end
+
+  def media_params
+    # Ajuste: permita apenas os campos de mídia esperados
+    params.require(:artist_song).permit(:duracao, :nome_arquivo_video, :nome_arquivo_som)
   end
 end

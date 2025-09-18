@@ -6,7 +6,6 @@ class ArtistsController < ApplicationController
     if current_user
       @artists = current_user.artists
       
-      # Adicionar funcionalidade de busca igual ao public_sets
       if params[:query].present?
         @artists = @artists.where("name ILIKE ?", "%#{params[:query]}%")
       end
@@ -16,33 +15,35 @@ class ArtistsController < ApplicationController
     end
   end
 
-  #Nova view de exibicao dos sets do artista
   def public_sets
     @artist_sets = @artist.artist_sets
     
-    # Busca por sets
     if params[:query].present?
       @artist_sets = @artist_sets.where("set_list_name ILIKE ?", "%#{params[:query]}%")
     end
   end
 
-  # GET /artists/1 or /artists/1.json
   def show
-    @artist_songs = @artist.artist_songs.includes(:song)
-    @songs = @artist.songs
-    @artist_sets = @artist.artist_sets
+    if params[:query].present?
+      @artist_sets = @artist.artist_sets
+                           .where("set_list_name ILIKE ?", "%#{params[:query]}%")
+                           .order(:set_list_name)
+    elsif params[:search_tags].present?
+      @artist_sets = @artist.artist_sets.with_tags(params[:search_tags]).order(:set_list_name)
+    else
+      @artist_sets = @artist.artist_sets.order(:set_list_name)
+    end
+    
+    @artist_sets = @artist_sets.includes(:artist_set_songs)
   end
 
-  # GET /artists/new
   def new
     @artist = Artist.new
   end
 
-  # GET /artists/1/edit
   def edit
   end
 
-  # POST /artists or /artists.json
   def create
     if current_user
       @artist = current_user.artists.build(artist_params)
@@ -61,8 +62,15 @@ class ArtistsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /artists/1 or /artists/1.json
+  # ✅ MÉTODO UPDATE CORRIGIDO
   def update
+    # ✅ VERIFICAR SE É OPERAÇÃO DE ATRIBUIR TAGS
+    if params[:action_type] == "assign_tags"
+      handle_assign_tags
+      return
+    end
+    
+    # ✅ LÓGICA ORIGINAL DE UPDATE DO ARTIST
     respond_to do |format|
       if @artist.update(artist_params)
         format.html { redirect_to @artist, notice: "Artist was successfully updated." }
@@ -74,7 +82,6 @@ class ArtistsController < ApplicationController
     end
   end
 
-  # DELETE /artists/1 or /artists/1.json
   def destroy
     @artist.destroy!
 
@@ -85,16 +92,8 @@ class ArtistsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_artist
-    if current_user
-      @artist = current_user.artists.find(params[:id])
-    else
-      @artist = Artist.find(params[:id])
-    end
-  end
 
-  # Only allow a list of trusted parameters through.
+  # ✅ APENAS UM MÉTODO SET_ARTIST
   def set_artist
     if current_user
       @artist = current_user.artists.find(params[:id])
@@ -104,6 +103,30 @@ class ArtistsController < ApplicationController
   end
 
   def artist_params
-    params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo, :video)
+    params.require(:artist).permit(:name, :social_message, :link1, :link1_text, :link2, :link2_text, :logo, :video, :other_attributes)
+  end
+
+  def handle_assign_tags
+    artist_set_id = params[:artist_set_id]
+    set_tags = params[:set_tags]
+    
+    if artist_set_id.present?
+      artist_set = @artist.artist_sets.find(artist_set_id)
+      
+      if params[:clear_tags].present?
+        artist_set.update!(set_tags: nil)
+        redirect_to artist_path(@artist), notice: "Tags removidas do setlist '#{artist_set.set_list_name}'"
+      elsif set_tags.present?
+        artist_set.update!(set_tags: set_tags.strip)
+        redirect_to artist_path(@artist), notice: "Tags atribuídas ao setlist '#{artist_set.set_list_name}'"
+      else
+        redirect_to artist_path(@artist), alert: "Digite as tags para atribuir ao setlist"
+      end
+    else
+      redirect_to artist_path(@artist), alert: "Selecione um setlist primeiro"
+    end
+  rescue => e
+    Rails.logger.error "❌ Erro ao atribuir tags: #{e.message}"
+    redirect_to artist_path(@artist), alert: "Erro ao atribuir tags: #{e.message}"
   end
 end

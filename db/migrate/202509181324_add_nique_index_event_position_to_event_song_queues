@@ -1,0 +1,14 @@
+class AddUniqueIndexEventPositionToEventSongQueues < ActiveRecord::Migration[7.0]
+  def up
+    # (Opcional) Detectar duplicados antes de criar índice:
+    # SELECT event_id, position, COUNT(*) FROM event_song_queues GROUP BY 1,2 HAVING COUNT(*) > 1;
+    add_index :event_song_queues,
+              [:event_id, :position],
+              unique: true,
+              name: 'idx_event_song_queues_event_pos'
+  end
+
+  def down
+    remove_index :event_song_queues, name: 'idx_event_song_queues_event_pos'
+  end
+end

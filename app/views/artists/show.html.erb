@@ -1,67 +1,134 @@
+<!-- filepath: c:\DEV\MySetList\app\views\artists\show.html.erb -->
 <!-- app/views/artists/show.html.erb -->
-  <p style="color: green"><%= notice %></p>
+<p style="color: green"><%= notice %></p>
 
-  <% if @artist.logo.attached? %>
-    <%= image_tag @artist.logo, width: 150 %>
-  <% end %>
+<% if @artist.logo.attached? %>
+  <%= image_tag @artist.logo, width: 150 %>
+<% end %>
 
-  <br>
+<br>
 
-  <br>
+<div>
+  <strong>Artista:</strong> <%= @artist.name %> <strong>ID:</strong> <%= @artist.id %>
+</div>
 
-  <div>
-    <strong>Artista:</strong> <%= @artist.name %> <strong>ID:</strong> <%= @artist.id %>
-  </div>
+<br>
 
-  <br>
+<div>
+  <%= link_to "Voltar para Artista", artists_path, 
+      role: "button" %>
+</div>
 
-  <div>
-    <%= link_to "Voltar para Artista", artists_path, 
+<hr>
+
+<!-- ✅ BUSCA POR NOME DE SETLIST -->
+<%= form_with url: artist_path(@artist), method: :get, local: true do %>
+    <%= label_tag :query, "Buscar Setlist" %>
+    <%= text_field_tag :query, params[:query] %>
+    <%= submit_tag "Filtrar Setlists", 
         role: "button" %>
-    <!-- %= link_to "Editar Artista", edit_artist_path(@artist), 
-        role: "button" % -->
-  </div>
+<% end %>
 
-  <hr>
+<br>
 
-  <%= form_with url: artist_path(@artist), method: :get, local: true do %>
-      <%= label_tag :query, "Buscar Sets" %>
-      <%= text_field_tag :query, params[:query] %>
-      <%= submit_tag "Filtrar Sets", 
-          role: "button" %>
-  <% end %>
-
-  <br>
-
-  <% @artist_sets.each do |artist_set| %>
-    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
-      <h2><%= artist_set.set_list_name %></h2>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <%= link_to "📋 Ver e Inserir via Base do App", show_sets_pub_artist_artist_set_path(@artist.id, artist_set.id), 
-            role: "button",
-            style: "background-color: #6f42c1; color: white;" %>
-        <%= link_to "🌐 Ver e Inserir via WEB", show_set_web_pub_artist_artist_set_path(@artist.id, artist_set.id), 
-            role: "button", 
-            style: "background-color: #17a2b8; color: white;" %>
-        <!-- No topo da página de sets do artista -->
-        <%= link_to "Importar Músicas", import_csv_songs_path, 
-            role: "button", 
-            style: "background-color: #17a2b8; color: white;" %>
+<!-- ✅ EXIBIR SETLISTS COM TAGS -->
+<% @artist_sets.each do |artist_set| %>
+  <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+    <!-- ✅ TÍTULO COM TAGS -->
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+      <h2 style="margin: 0;"><%= artist_set.set_list_name %></h2>
+      
+      <!-- ✅ EXIBIR TAGS -->
+      <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+        <% if artist_set.set_tags.present? %>
+          <% artist_set.set_tags.split(',').map(&:strip).each do |tag| %>
+            <span style="background-color: #e9ecef; color: #495057; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: normal;">
+              <%= tag %>
+            </span>
+          <% end %>
+        <% end %>
       </div>
     </div>
+    
+    <!-- ✅ BOTÕES DE AÇÃO -->
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <%= link_to "Ver e Inserir via Base do App", show_sets_pub_artist_artist_set_path(@artist.id, artist_set.id), 
+          role: "button",
+          style: "background-color: #6f42c1; color: white;" %>
+      <%= link_to "Ver e Inserir via WEB", show_set_web_pub_artist_artist_set_path(@artist.id, artist_set.id), 
+          role: "button", 
+          style: "background-color: #17a2b8; color: white;" %>
+      <!-- %= button_to "Duplicar", duplicate_artist_artist_set_path(@artist, artist_set), 
+          method: :post,
+          params: {},
+          form: { style: "display: inline-block;" },
+          style: "background-color: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;",
+          data: { 
+            confirm: "Duplicar setlist '#{artist_set.set_list_name}'?",
+            turbo: false 
+          } % -->
+    </div>
+  </div>
+<% end %>
+
+<hr>
+
+<div style="margin: 20px 0;">
+  <%= link_to "Novo Setlist", new_artist_artist_set_path(@artist), 
+      role: "button" %>
+</div>
+
+<!-- ✅ NOVA: SEÇÃO PARA GERENCIAR TAGS DOS SETLISTS -->
+<div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+  <h3 style="margin-top: 0;">Gerenciar Tags dos Setlists</h3>
+  
+  <% if @artist_sets.any? %>
+    <!-- ✅ FORMULÁRIO PARA ATRIBUIR TAGS - USANDO ROTA PATCH DO ARTIST -->
+    <%= form_with url: artist_path(@artist), method: :patch, local: true do %>
+      <!-- Campo oculto para identificar que é operação de tags -->
+      <%= hidden_field_tag :action_type, "assign_tags" %>
+      
+      <div style="margin-bottom: 15px;">
+        <%= label_tag :artist_set_id, "Escolher Setlist:", style: "display: block; margin-bottom: 5px; font-weight: bold;" %>
+        <%= select_tag :artist_set_id, 
+            options_from_collection_for_select(@artist_sets, :id, :set_list_name), 
+            { prompt: "Selecione um setlist...", 
+              style: "width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" } %>
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <%= label_tag :set_tags, "Tags (separadas por vírgula):", style: "display: block; margin-bottom: 5px; font-weight: bold;" %>
+        <%= text_area_tag :set_tags, "", 
+            placeholder: "Ex: rock, energético, festa, anos 80, acústico",
+            style: "width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;",
+            rows: 3 %>
+        <small style="color: #666; display: block; margin-top: 5px;">
+          💡 Digite as tags separadas por vírgula. Exemplo: rock, acústico, festa, balada
+        </small>
+      </div>
+      
+      <div style="display: flex; gap: 10px;">
+        <%= submit_tag "Atribuir Tags", 
+            style: "background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;" %>
+        
+        <%= submit_tag "Limpar Tags", 
+            name: "clear_tags",
+            style: "background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;",
+            confirm: "Limpar todas as tags do setlist selecionado?" %>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color: #666; font-style: italic;">
+      Crie setlists primeiro para poder atribuir tags.
+    </p>
   <% end %>
+</div>
 
-  <hr>
+<hr>
 
-  <div style="margin: 20px 0;">
-    <%= link_to "Novo Setlist", new_artist_artist_set_path(@artist), 
-        role: "button" %>
-  </div>
-
-  <hr>
-
-  <div>
-    <!-- %= button_to "Destroy this artist", @artist, method: :delete, 
-        style: "background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;",
-        confirm: "Tem certeza que deseja deletar este artist?" % -->
-  </div>
+<!-- Link para importar músicas mantido no final -->
+<div style="margin: 20px 0;">
+  <%= link_to "Importar Músicas", import_csv_songs_path, 
+      role: "button", 
+      style: "background-color: #17a2b8; color: white;" %>
+</div>
