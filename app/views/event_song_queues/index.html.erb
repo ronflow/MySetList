@@ -36,7 +36,10 @@
             <td>
               <% artist_song = ArtistSong.find_by(artist_id: @event.artist_id, song_id: queue.song_id) %>
               <% if artist_song&.letra.present? %>
-                <%= link_to "Ver Letra", lyrics_artist_song_path(artist_song), class: "button", target: "_blank" %>
+                <!-- Usando rota existente de SongsController -->
+                <%= link_to "Ver Letra", lyrics_song_path(queue.song), class: "button", target: "_blank" %>
+              <% elsif queue.song.lyrics.present? %>
+                <%= link_to "Ver Letra", lyrics_song_path(queue.song), class: "button", target: "_blank" %>
               <% else %>
                 <span style="color: #aaa;">Sem Letra</span>
               <% end %>
