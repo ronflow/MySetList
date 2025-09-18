@@ -46,7 +46,7 @@ module Admin
     # Visualiza a fila de músicas do evento (visíveis e ocultas)
     def show_queue
       # Busca todas as filas do evento ordenadas por posição
-      @queues = @event.event_song_queues.order(:position)
+      @queues = @event.event_song_queues.includes(:song, :performer).order(:position)
       
       # Separa filas visíveis das ocultas para exibição diferenciada
       @visible_queues = @queues.where(hidden: [false, nil]).order(:position)

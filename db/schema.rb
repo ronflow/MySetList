@@ -57,6 +57,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_09_174322) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "set_tags"
+    t.text "description"
     t.index ["artist_id"], name: "index_artist_sets_on_artist_id"
     t.index ["set_tags"], name: "index_artist_sets_on_set_tags"
   end

@@ -41,15 +41,9 @@ Rails.application.routes.draw do
     end
     
     # Fila de músicas do evento (event_song_queues)
-    resources :event_song_queues do
-      member do
-        # Ocultar música específica da fila
-        patch :hide
-      end
-      collection do
-        # Reordenar toda a fila de músicas
-        post :reorder
-      end
+    resources :event_song_queues, only: [:index, :create, :destroy] do
+      member { patch :hide }
+      collection { post :reorder }
     end
     
     # Sets/grupos de músicas do evento
