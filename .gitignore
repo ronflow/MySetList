@@ -39,7 +39,7 @@
 
 # *.lock
 /config/database.yml
-/config/storage.yml
+#/config/storage.yml
 
 
-/config/storage.yml
+#/config/storage.yml
