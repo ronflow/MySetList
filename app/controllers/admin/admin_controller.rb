@@ -1,5 +1,3 @@
-# require 'mini_magick'
-
 module Admin
   class AdminController < ApplicationController
     # =========================

@@ -1,99 +1,150 @@
-<!-- app/views/artists/edit.html.erb -->
 <h1>Editando Artist</h1>
 
 <%= form_with(model: @artist, local: true) do |form| %>
   <% if @artist.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@artist.errors.count, "error") %> prohibited this artist from being saved:</h2>
+      <h2><%= pluralize(@artist.errors.count, "erro") %> impediram o salvamento:</h2>
       <ul>
-        <% @artist.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
+        <% @artist.errors.full_messages.each do |m| %><li><%= m %></li><% end %>
       </ul>
     </div>
   <% end %>
 
-  <!-- 📦 SEÇÃO DE MÍDIA -->
-  <!-- 🖼️ Logo do Artist -->
-  <div style="margin-right: 20px;">
-    <% if @artist.logo.attached? %>
-      <%= image_tag @artist.logo, 
-          alt: "Logo de #{@artist.name}", 
-          style: "width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" %>
-    <% else %>
-      <div style="width: 80px; height: 80px; background-color: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
-        <span style="font-size: 12px; text-align: center;">Sem<br>Logo</span>
+  <!-- BLOCO DE MÍDIA -->
+  <div style="display:flex; gap:30px; flex-wrap:wrap; margin-bottom:25px;">
+
+    <!-- LOGO -->
+    <div>
+      <h3 style="margin:0 0 10px;">Logo</h3>
+      <% if @artist.persisted? && @artist.logo.attached? && @artist.logo.attachment&.persisted? %>
+        <%= image_tag @artist.logo,
+            alt: "Logo de #{@artist.name}",
+            style: "width:80px; height:80px; object-fit:cover; border-radius:8px; border:2px solid #ddd;" %>
+      <% else %>
+        <div style="width:80px; height:80px; background:#f8f9fa; border:2px solid #ddd; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#6c757d; font-size:12px; text-align:center;">
+          Sem<br>Logo
+        </div>
+      <% end %>
+
+      <div class="field" style="margin-top:8px;">
+        <%= form.label :logo, "Alterar logo" %><br>
+        <%= form.file_field :logo, accept: "image/*" %>
+        <% if @artist.errors.any? && @artist.logo.attached? && !@artist.logo.attachment&.persisted? %>
+          <small style="color:#d9534f;">Logo nova será salva após corrigir os erros.</small>
+        <% end %>
       </div>
-    <% end %>
-    <div class="field">
-      <%= form.label :logo, "Alterar logo" %>
-      <%= form.file_field :logo %>
+
+      <% if @artist.persisted? && @artist.logo.attached? && @artist.logo.attachment&.persisted? %>
+        <div style="margin-top:6px;">
+          <label style="font-size:12px;">
+            <%= check_box_tag :remove_logo, "1", false %> Remover logo ao salvar
+          </label>
+          <%# Opcional: remoção imediata (exige rota DELETE /artists/:id/purge_logo) %>
+          <%#= link_to "Remover agora", purge_logo_artist_path(@artist), data: { confirm: "Remover logo agora?" }, method: :delete, style:"font-size:12px; margin-left:8px;" %>
+        </div>
+      <% end %>
     </div>
+
+    <!-- VÍDEO -->
+    <div>
+      <h3 style="margin:0 0 10px;">Vídeo</h3>
+      <% if @artist.persisted? && @artist.video.attached? && @artist.video.attachment&.persisted? %>
+        <div style="margin-bottom:8px;">
+          <%= video_tag @artist.video,
+              controls: true,
+              style: "width:200px; height:120px; border-radius:8px; border:2px solid #ddd; background:#000;" %>
+        </div>
+      <% else %>
+        <div style="width:200px; height:120px; background:#f8f9fa; border:2px solid #ddd; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#6c757d;">
+          Sem Vídeo
+        </div>
+      <% end %>
+
+      <div class="field" style="margin-top:8px;">
+        <%= form.label :video, "Alterar/Adicionar Vídeo" %><br>
+        <%= form.file_field :video, accept: "video/*" %>
+        <% if @artist.errors.any? && @artist.video.attached? && !@artist.video.attachment&.persisted? %>
+          <small style="color:#d9534f;">Vídeo novo só aparece após salvar.</small>
+        <% end %>
+      </div>
+
+      <% if @artist.persisted? && @artist.video.attached? && @artist.video.attachment&.persisted? %>
+        <div style="margin-top:6px;">
+          <label style="font-size:12px;">
+            <%= check_box_tag :remove_video, "1", false %> Remover vídeo ao salvar
+          </label>
+          <%#= link_to "Remover agora", purge_video_artist_path(@artist), data: { confirm: "Remover vídeo agora?" }, method: :delete, style:"font-size:12px; margin-left:8px;" %>
+        </div>
+      <% end %>
+    </div>
+
   </div>
 
-  <!-- 🎬 VÍDEO DO ARTIST -->
-  <div style="flex: 1; min-width: 250px;">
-    <h3 style="margin-bottom: 15px; color: #333;">🎥 Vídeo do Artista</h3>
-    
-    <% if @artist.video.attached? %>
-      <div style="margin-bottom: 10px;">
-        <%= video_tag @artist.video, 
-            controls: true,
-            style: "width: 200px; height: 120px; border-radius: 8px; border: 2px solid #ddd;",
-            poster: (@artist.logo.attached? ? url_for(@artist.logo) : nil) %>
-      </div>
-      <p style="color: #28a745; font-size: 14px;">✅ Vídeo atual carregado</p>
-    <% else %>
-      <div style="width: 200px; height: 120px; background-color: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d; margin-bottom: 10px;">
-        <span style="font-size: 14px; text-align: center;">🎬<br>Sem Vídeo</span>
-      </div>
-    <% end %>
-    
-    <div class="field">
-      <%= form.label :video, "Alterar/Adicionar Vídeo" %>
-      <%= form.file_field :video, accept: "video/*" %>
-      <small style="color: #666;">Formatos aceitos: MP4, AVI, MOV, WMV</small>
-    </div>
-  </div>
-
-  <!-- 📝 INFORMAÇÕES BÁSICAS -->
+  <!-- INFORMAÇÕES BÁSICAS -->
   <div class="field">
-    <%= form.label :name %>
+    <%= form.label :name, "Nome" %><br>
     <%= form.text_field :name %>
   </div>
 
+  <div class="field" style="margin-top:12px;">
+    <%= form.label :social_message, "Mensagem Social" %><br>
+    <%= form.text_area :social_message, rows:3, style:"width:1800px;" %>
+  </div>
+
   <!-- REDES SOCIAIS -->
-  <!-- Links das redes sociais -->
+  <div class="field" style="margin-top:20px;">
+    <%= form.label :link1, "Link Social 1" %><br>
+    <%= form.url_field :link1 %>
+  </div>
   <div class="field">
-    <%= form.label :link1, "Link da Rede Social 1" %>
-    <%= form.url_field :link1, placeholder: "https://wa.me/5511999999999" %>
+    <%= form.label :link1_text, "Texto Botão 1" %><br>
+    <%= form.text_field :link1_text %>
   </div>
-
   <div class="field">
-    <%= form.label :link1_text, "Texto do Botão 1" %>
-    <%= form.text_field :link1_text, placeholder: "WhatsApp" %>
+    <%= form.label :link2, "Link Social 2" %><br>
+    <%= form.url_field :link2 %>
   </div>
-
   <div class="field">
-    <%= form.label :link2, "Link da Rede Social 2" %>
-    <%= form.url_field :link2, placeholder: "https://instagram.com/usuario" %>
+    <%= form.label :link2_text, "Texto Botão 2" %><br>
+    <%= form.text_field :link2_text %>
   </div>
 
-  <div class="field">
-    <%= form.label :link2_text, "Texto do Botão 2" %>
-    <%= form.text_field :link2_text, placeholder: "Instagram" %>
+  <div class="actions" style="margin-top:18px;">
+    <%= form.submit "Salvar" %>
   </div>
+<% end %>
 
-  <!-- 🎯 AÇÕES -->
-  <div class="actions">
-    <%= form.submit %>
-    </div>
-  <% end %>
+<h3 style="margin-top:40px;">Usuários vinculados</h3>
+<table>
+  <thead><tr><th>Email</th><th>Dono?</th><th>Ações</th></tr></thead>
+  <tbody>
+    <% @artist.artist_users.includes(:user).each do |au| %>
+      <tr>
+        <td><%= au.user.email_address %></td>
+        <td><%= au.owner ? "Sim" : "Não" %></td>
+        <td>
+          <% unless au.user_id == current_user.id %>
+            <%= button_to "Remover",
+                artist_artist_user_path(@artist, au),
+                method: :delete,
+                data: { confirm: "Remover acesso?" } %>
+          <% end %>
+          <%= button_to (au.owner ? "Revogar Owner" : "Tornar Owner"),
+                toggle_owner_artist_artist_user_path(@artist, au),
+                method: :patch %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 
-  <!-- 🔙 NAVEGAÇÃO -->
-  <div>
-    <%= link_to "Voltar para Artista", artists_path,
-    role: "button" %>
-    <%= link_to "Mostrar Artista", @artist,
-    role: "button" %>
-  </div>
+<h4>Adicionar usuário por email</h4>
+<%= form_with url: artist_artist_users_path(@artist), method: :post, local: true do %>
+  <%= email_field_tag :email, nil, required: true, placeholder: "email@dominio.com" %>
+  <%= submit_tag "Adicionar" %>
+<% end %>
+
+<div style="margin-top:25px;">
+  <%= link_to "Voltar para Artistas", artists_path, role:"button" %>
+  <%= link_to "Mostrar Artista", @artist, role:"button" if @artist.persisted? %>
+</div>

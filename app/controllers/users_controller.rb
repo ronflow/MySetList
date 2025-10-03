@@ -9,7 +9,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       session[:user_id] = @user.id
-      redirect_to admin_root_path, notice: "Conta criada com sucesso!"
+      redirect_to choose_artists_path, notice: "Cadastro realizado."
     else
       render :new, status: :unprocessable_entity
     end
@@ -18,6 +18,6 @@ class UsersController < ApplicationController
   private
   
   def user_params
-    params.require(:user).permit(:email_address, :password, :password_confirmation, :name)
+    params.require(:user).permit(:name, :email_address, :password, :password_confirmation)
   end
 end
