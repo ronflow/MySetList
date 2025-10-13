@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_22_191644) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_01_120200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,21 +73,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_22_191644) do
     t.text "nome_arquivo_som"
     t.index ["artist_id", "song_id"], name: "index_artist_songs_on_artist_id_and_song_id", unique: true
     t.index ["artist_id"], name: "index_artist_songs_on_artist_id"
-    t.index ["duracao"], name: "index_artist_songs_on_duracao"
     t.index ["song_id"], name: "index_artist_songs_on_song_id"
+  end
+
+  create_table "artist_users", force: :cascade do |t|
+    t.bigint "artist_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "owner", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artist_id", "user_id"], name: "index_artist_users_on_artist_id_and_user_id", unique: true
+    t.index ["artist_id"], name: "index_artist_users_on_artist_id"
+    t.index ["user_id"], name: "index_artist_users_on_user_id"
   end
 
   create_table "artists", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.string "link1"
     t.string "link2"
     t.string "link1_text"
     t.string "link2_text"
     t.text "social_message"
-    t.index ["user_id"], name: "index_artists_on_user_id"
   end
 
   create_table "event_sets", force: :cascade do |t|
@@ -162,7 +170,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_22_191644) do
   add_foreign_key "artist_sets", "artists"
   add_foreign_key "artist_songs", "artists"
   add_foreign_key "artist_songs", "songs"
-  add_foreign_key "artists", "users"
+  add_foreign_key "artist_users", "artists"
+  add_foreign_key "artist_users", "users"
   add_foreign_key "event_sets", "artist_sets"
   add_foreign_key "event_sets", "events"
   add_foreign_key "event_song_queues", "events"
